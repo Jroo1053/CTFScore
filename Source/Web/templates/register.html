@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main class="flex_container">
+    <div class="data_card" style="width: 85%;">
+        <h3>Register</h3>
+        <p>
+            Create a new account with the system and register one of the nodes
+            that you are currently in control of here.
+            The system uses this information to calculate scores on a per user basis
+            so make sure, that this info is correct if, you want an accurate score.
+        </p>
+        <p>
+            Nodes can be identified either by hostnames or IP addresses and it is 
+            recommended that use both identifiers.
+        </p>
+        <p>
+            If your using Linux you should be able to retrieve a list of all the IPs associated with your node with:
+        </p>
+        <code>
+            ip a
+        </code>
+        <p>or</p>
+        <code>
+            ifconfig
+        </code>
+        <p>
+            If your using Windows you can use:
+        </p>
+        <code>
+            ipconfig
+        </code>
+        <p>
+            Please note, that the IP you register must be the one associated 
+            with the adapter that interacts with the network used to host this CTF. 
+            Otherwise, no NIDs alerts will be ingested by the system.
+        </p>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.username.label }}<br>
+                {{ form.username(size=32) }}<br>
+                {% for error in form.username.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                <label for="registered_assets_0">Network Identifiers</label>
+            <ul>
+                {% for asset in form.registered_assets %}
+                <li style="margin: 16px;">
+                    {{ asset(size=32) }}
+                </li>
+                {% endfor %}
+            </ul>
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class="flashes">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {% if new_token %}
+        <h4>Access Token</h4>
+        <code id="token_display" style="word-wrap: break-word;">{{new_token}}</code>
+        <button onclick="CopyToClip()" id="copy_button">Copy Key</button>
+        <p>
+            <em>Note:</em> This token will only be shown once, so make sure it's stored in a secure location.
+            Use it to access your new account via the <a href="/login">login</a> page
+        </p>
+        {% endif %}
+    </div>
+</main>
+<script>
+    function CopyToClip() {
+        var copy_code = document.getElementById("token_display");
+        var copy_button = document.getElementById("copy_button");
+        var copy_text = copy_code.textContent;
+        navigator.clipboard.writeText(copy_text);
+        copy_button.innerHTML = "Copied To Clipboard";
+    }
+</script>
+
+{% endblock %}

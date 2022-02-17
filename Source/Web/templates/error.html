@@ -1,0 +1,11 @@
+{% extends "error_base.html" %}
+{% block content %}
+<main>
+    <div class="error_card">
+        <h1>{{header}}</h1>
+        <p>
+            {{message}} Click <a href="{{url_for('ui.index')}}">here</a> to return to the home page.
+        </p>
+    </div>
+</main>
+{% endblock %}

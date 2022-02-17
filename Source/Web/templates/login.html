@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="flex_container">
+
+<figure class="data_card" style="width: 50% ">
+    <h3>Sign In</h3>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}
+        </p>
+        <p>
+            {{ form.access_token.label }}<br>
+            {{ form.access_token(size=32) }}
+        </p>
+        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    <p>
+        Create an Account <a href="/register">here</a>
+    </p>
+</figure>
+</main>
+
+{% endblock %}

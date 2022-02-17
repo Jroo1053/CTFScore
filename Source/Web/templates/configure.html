@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main class="flex_container">
+    <div class="data_card" style="width: 75%;">
+        <h3>Register</h3>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                <label for="registered_assets_0">Controlled Nodes</label>
+            <ul>
+                {% for asset in form.registered_assets %}
+                <li style="margin: 16px;">
+                    {{ asset }}
+                </li>
+                {% endfor %}
+            </ul>
+            </p>
+            <p>{{ form.append_field()}}</p>
+            <p>{{ form.submit() }}</p>
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class="flashes">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+</main>
+
+{% endblock %}

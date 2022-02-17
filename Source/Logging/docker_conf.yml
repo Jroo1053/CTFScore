@@ -1,0 +1,38 @@
+# Advanced CTF Scoring System - Example Config.
+---
+# ALl keys in this section are mandatory
+global_options:
+    # The base url of the API that will receive the IDS alerts
+    api_url: http://localhost:5000/api
+    # How long to wait (in ms) between reading and forwarding alerts to the api
+    polling_rate: 250
+    # Paths for the API Key and ID files. These must match the values set in
+    # the api. Documentation of setting these values on the API side is 
+    # available here: 
+    api_key_file: Source/Logging/test_key.txt
+    api_id_file: Source/Logging/test_id.txt
+    ssl_cert_file: /etc/ctfscore/cert
+    # The paths of the 
+    api_status_endpoint: "/status"
+    api_forward_event_endpoint: "/events"
+    # The maximium number of **consecutive** failures since the last succesful
+    # interaction with the api.
+    api_max_retries: 5
+    # It can be useful to disable the API forwarding function when developing the log aggregator
+    api_is_enabled: True
+# This section is mandatory howerver, there are set no limits on the number of 
+#IDS provided, that there is at least one **valid** IDS
+ids_options:
+  - ids: 
+      log_file_format:
+        fields:
+          timestamp: /timestamp
+          src_ip: /src_ip
+          dest_ip: /dest_ip
+          message: /alert/signature
+          severity: /alert/severity
+          category: /alert/category
+        path: /var/log/suricata/eve.json
+      max_alerts: 10
+      name: "Suricata"
+      reliability: 5

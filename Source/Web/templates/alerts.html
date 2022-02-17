@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="flex_container">
+    <figure class="data_card" style="width: 95%;">
+        <h3>
+            Scoring History
+        </h3>
+        <p>
+            This page contains a listing of the last 10,000 alerts recorded by the system. Note, that
+            this also includes score-less alerts that are not fully consumed by the scoring algorithm. 
+        </p>
+        <p>
+            You can click on any alert on this page to view a breakdown of how the score was calculated and every
+            aspect of the alert. 
+        </p>
+        <p id="no_data" style="visibility: hidden;">
+            No alerts are  currently associated with this account. 
+            This could either be the result of miss-configured assets which can be fixed <a href="/configure">here</a> or, you
+            may have not triggered any IDS alerts yet.
+        </p>
+        <table id="alerts_table" class="display">
+            <thead>
+                <tr>
+                    <th>
+                        Timestamp
+                    </th>
+                    <th>
+                        Message
+                    </th>
+                    <th>
+                        Category
+                    </th>
+                    <th>
+                        Severity
+                    </th>
+                    <th>
+                        Source
+                    </th>
+                    <th>
+                        Targeted Asset
+                    </th>
+                    <th>
+                        Score
+                    </th>
+                    <th>
+                        Scoring Breakdown
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </figure>
+    <script>
+        $(document).ready(function () {
+                $.fn.dataTable.ext.errMode = function( settings, helpPage, message){
+                    /* Called on ajax error which, should occur when there are no alerts associated
+                    with the given user */
+                    var no_data = document.getElementById("no_data");
+                    no_data.style = ("visibility: visible;");
+                }
+                table = $('#alerts_table').DataTable({
+                    "ajax": {
+                        "url": "/api/events/all/{{current_user.id}}",
+                        "dataSrc": ""
+                    },
+                    "columns": [
+                        { "data": 'timestamp' },
+                        { "data": 'message' },
+                        { "data": 'category' },
+                        { "data": 'severity' },
+                        { "data": 'source' },
+                        { "data": 'dest_ip' },
+                        {
+                            "data": 'score',
+                        },
+                        {
+                            "data": 'id',
+                            "visible": false
+
+                        }
+                    ]
+                }
+                );
+                $('#alerts_table').on('click', 'tbody tr', function () {
+                    alert_id = table.row(this).data().id;
+                    window.location.href = ("/alert/" + alert_id)
+                });
+        });
+
+    </script>
+</main>
+
+{% endblock %}

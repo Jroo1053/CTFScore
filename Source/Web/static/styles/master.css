@@ -1,0 +1,136 @@
+body{
+    font-family: sans-serif;
+    margin: 0px;
+    grid-template-columns: auto;
+    grid-template-rows: 0.01fr auto 0.1fr;
+    grid-template-areas: 
+    "nav"
+    "main"
+    "footer" 
+    ;
+    display:  grid;
+    height: 100vw;
+    background-color: white;
+    color: black;
+}
+/* Nav Styling */
+
+header{
+    grid-area: "nav";
+}
+header a{
+    text-decoration: none;
+    color: white;
+}
+nav ul li{
+    display: inline-block;
+    margin: 0.5em;
+}
+nav ul li:hover{
+    background-color: #DA0037;
+}
+nav{
+    background-color: #313131;
+}
+nav ul{
+    padding: 0px;
+    border-bottom: 1px solid #DA0037;
+}
+/* Main Styling */
+
+.flex_container{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline ;
+    justify-content: space-evenly;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.data_card{
+    background-color: white;
+    margin: 0px;
+    border: 1px #DA0037 solid;
+}
+.data_card p{
+    margin: 1em;
+}
+.data_card ul{
+    list-style: none;
+    padding: 0px;
+}
+.data_card h2, .data_card h3{
+    text-align: center;
+}
+.data_card span{
+    margin-left: 50%;
+    margin-right: 50%;
+}
+
+button{
+    background-color: #DA0037;
+    padding: 0.5em;
+    color: white;
+    border: 0px;
+}
+button:hover{
+    background-color: #313131;
+}
+#submit{
+    background-color: #DA0037;
+    border: 0px;
+    color: white;
+    padding: 0.5em;
+}
+#submit:hover{
+    background-color: #313131;
+}
+code{
+    background-color: #f4f4f4;
+    border: 1px solid #DA0037;
+    color: #666;
+    page-break-inside: avoid;
+    font-family: monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 100%;
+    overflow: auto;
+    padding: 1em 1.5em;
+    display: block;
+    word-wrap: break-word;
+    margin: 1em;
+}
+.flashes li{
+    background-color: red;
+    padding: 1em;
+    color: white;
+}
+/* Footer Styling */
+footer{
+    background-color: #313131;
+    grid-area: "footer";
+    border-top: 1px solid #DA0037;
+    height: 100%;
+}
+footer ul li{
+    display: inline-block;
+    margin-left: 0.5em;
+}
+footer ul li a{
+    text-decoration: none;
+    color:  white;
+    font-size: smaller;
+}
+
+/* Misc Styling */
+
+.error_card{
+    width: 75%;
+    display: block;
+    margin: auto;
+    padding: 1em;
+    border: 1px solid #DA0037;
+    background-color: #313131;
+    color: white;
+    margin-top: 2em;
+}

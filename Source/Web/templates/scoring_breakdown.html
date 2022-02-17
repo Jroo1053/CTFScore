@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<main class="flex_container">
+
+    <figure class="data_card" style="width: 100%; margin: 1em;">
+        <h3> Scoring Breakdown For Alert {{alert.id}} ({{alert.message}})</h3>
+    </figure>
+    <figure class="data_card" style="width: 45%; margin: 1em;">
+        <h3>Alert Details</h3>
+        <ul style="list-style:inside;  margin-left: 1em;">
+            <li>
+                Alert ID: {{alert.id}}
+            </li>
+            <li>Alert Timestamp: {{alert.timestamp}}</li>
+            <li>
+                Source IP: {{alert.src_ip}}
+            </li>
+            <li>
+                Affected Asset: {{alert.dest_ip}}
+            </li>
+            <li>
+                Alert Description: {{alert.message}}
+            </li>
+            <li>
+                 Alert Category: {{alert.category}}
+            </li>
+            {% if alert.severity %}
+                <li> 
+                    Alert Severity: {{alert.severity}}
+                </li>
+            {% endif %}
+        </ul>
+    </figure>
+    <figure class="data_card" style="width: 45%; margin: 1em;">
+        <h3>Target Details</h3>
+        <ul style="list-style:inside;  margin-left: 1em;">
+            <li>
+                Asset Name: {{asset.name}}
+            </li>
+            <li>
+                Asset Value: {{asset.value}}
+            </li>
+        </ul>
+    </figure>
+    <figure class="data_card" style="width: 45%; margin: 1em;">
+        <h3>IDS Details</h3>
+        <ul style="list-style:inside;  margin-left: 1em;">
+            <li>
+                IDS Name: {{source.ids_name}}
+            </li>
+            <li>
+                IDS Reliability: {{source.reliability}}
+            </li>
+            <!--TODO Get Scale From Logger -->
+            {% if source.ids_name == "Wazuh" %}
+            <li>
+                IDS Severity Range: 0-16
+            </li>
+            {% elif source.ids_name == "Suricata" %}
+            <li>
+                IDS Severity Range: 0-7
+            </li>
+            {% endif %}
+        </ul>
+    </figure>
+    <figure class="data_card" style="width: 100%; margin: 1em;">
+        <h3>Scoring Walkthrough</h3>
+        <p>
+            This walkthrough is for the currently selected alert scoring method, the AlienVault USM algorithm which is defined as follows:
+        </p>
+        <code>
+            calculated_risk_value = (AssetValue * Priority * Reliability) / 25
+        </code>
+        <p>
+            Where:
+            <ul style="list-style:inside;">
+                <li>
+                AssetValue is the relative value of the asset that was attacked, rated from 0-5.
+                </li>
+                <li>
+                Priority measures the severity of the attack and the urgency of investigation, rated from 0-5. Note that, severity levels from different IDS are normalised to fit this scale
+                </li>
+                <li>
+                Reliability defines the likelihood of a false positive, rated from 0-10
+                </li>
+            </ul>
+        </p>
+        <p>
+            This translates to the following in the case of alert {{alert.id}}
+        </p>
+        <!---TODO FIX-->
+        <code>
+            calculated_risk_value = ({{asset.value}} * {{alert.normalised_severity}} * {{source.reliability}}) / 25
+        </code>
+    </figure>
+    
+</main>
+
+{% endblock %}
