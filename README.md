@@ -39,7 +39,7 @@ The system does require some configuration work before it can be correctly deplo
 
 1. The log aggregator will require:
     1. A path to a valid JSON file containing the target alerts
-    2. [JSON pointers]() to map the raw JSON to useful data
+    2. [JSON pointers](https://github.com/Jroo1053/CTFScore/blob/master/Docs/IDSJSONTable.md) to map the raw JSON to useful data
     3. The URL of the API
     4. Paths to valid API key and auth files
 2. The API/UI requires:
