@@ -1,56 +1,63 @@
-# Qualitative CTF Monitoring
+# CTFScore - A Detection Based CTF Assessment Mechanism
+
+![CTFScore Banner](https://ctfresources.s3.eu-west-2.amazonaws.com/bannerhq.png)
 
 ## Overview
 
-## Implementation
+CTFScore or the "Advanced CTF Scoring System" adds a new dimension to CTFs by, scoring participants on the forensic footprint of their approaches. The system integrates with a [Variety](#Supported_IDS) of open source IDS and provides real time feedback to users based on the detectability of their attacks.
 
-## Project Status
+This allows CTF developers to introduce discussion on defensive methodologies to any CTF and, gives users a reason to explore different attack patterns.
 
-### Log Aggregator
+A demo CTF with, the system attached is a available on [TryHackMe.com](https://tryhackme.com/jr/idsevasion). This room walks users through a cyber attack from initial recon to the final post-exploitation task and covers, how the footprint of each attack can be managed.
 
-The log aggregator will collect data from the deployed IDS(s) and translate every IDS alert into an common JSON object that can be fed to the web application component. IDS alerts will be collated either from local sources or from a remote file.
+## Installation
 
-#### Local File Support
+### Architectural Overview
 
-In a single node deployment all of the IDS(s) will be deployed on the same node using containers. In order to support this use case, it should be possible for the log aggregator to collect data from a local source. The log aggregator should then be able to collect alerts from the other containers using a container volume eg. a Docker volume or  Kubernetes PV.
+The system consists of two components:
 
-#### Remote File Support
+1. The log aggregator - This is a simple Python service that reads from attached IDS alert sources and forwards the results to the second component. 
+2. The API/UI - This component handles the majority of the logic and, ingests, scores and stores the alerts that it receives from attached log aggregators. The UI also provides a connivent means to search through IDS alert history and analyse how the attached IDS track exploits
 
-The log aggregator should also have some capability to collect file from remote sources via SSH. This would allow one deployment of the aggregator to manage data from multiple different IDS deployments which, would be the case in a multi node deployment. This feature will also allow the system to collect events from IDS that cannot be containerised.
+Using this architecture allows the system to serve both a "single node" CTF where, all services are hosted on the same machine and a "multi-node" CTF where, services are split across a LAN (see below). Either, way any installation will require one instance of the API/UI and at least one log aggregator
 
-Of course, It is also possible to use existing log transport technologies to collect results from remote IDS so that can be read locally. However, existing log transport technology can be difficult to deploy and will often transport the logs without encryption. As a result, it makes sense to allow the log aggregator to connect to nodes via SSH, especially, in a CTF environment were the security of the connected nodes is not of any importance.
+### Docker
 
-#### Basic Configuration
+Each component is designed with containerisation in mind, and as a result it is recommended that you use the [provided docker containers]() to integrate the system with your CTF. The docker-compose used to host the public CTF is available [here](), and should be a good starting point for most deployments.
 
-The log aggregator needs to be capable of reading a single config file and responding to the specified changes this, is of particular importance in this case since, as the log aggregator should always being running in an unattended docker container
+### Ansible
 
-#### Web API Integration
+[Ansible plays]() are also available to perform the installation of the demo CTF, and each individual component.
 
-The log aggregator should be able to make requests to the Web API. 
+### Manual Deployment
 
-### Web UI / API
+Finally, manual deployment of,course remains an option documentation on this is available [here]()/
 
-#### Basic Authentication
+## Configuration
 
-It would be important to create some level of separation between individual users in the web application for several reasons. First, user accounts would allow IDS events to be tied to individuals rather than the system as a whole which, would provide more accurate scoring to each user by only counting events caused by them. This feature would also help to filter IDS events that are not created by users for example, events created by the log aggregator or other IDS.
+The system does require some configuration work before it can be correctly deployed again, documentation and exemplar config files are available [here](). In general however, the following is needed:
 
-#### Event List, Search and Sort
+1. The log aggregator will require:
+    1. A path to a valid JSON file containing the target alerts
+    2. [JSON pointers]() to map the raw JSON to useful data
+    3. The URL of the API
+    4. Paths to valid API key and auth files
+2. The API/UI requires:
+    1. A list of all the network assets intended to be targeted during the course of the CTF
+    2. Key and ID pairs that match the values set by instances of the log aggregator
 
-#### Input API
+### Supported IDS
 
-#### IDS Status Feed
+The current support list is as follows, note that "tentative" support means that, the target IDS will work with the system however, it may not produce expected results as it has not been extensively tested:
 
-#### Scoring Display
+| IDS | Support State |
+|-----|-------|
+| Wazuh | Supported & Tested
+| Suricata | Supported & Tested |
+| Teler | Tentative Support |
 
-### Scoring Algorithm
+All IDS will require some level of configuration before their events can be ingested by the log aggregator, more info on this is available [here]().
 
-#### Multi IDS Support
+## Licence
 
-### Infrastructure / Application Packaging
-
-#### Component Containers
-
-#### Ansible Deployment Script
-
-Support for network and single node deployments
-
+This project is licenced under AGPL_3.0.
