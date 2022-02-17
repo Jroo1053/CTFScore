@@ -4,7 +4,7 @@
 
 ## Overview
 
-CTFScore or the "Advanced CTF Scoring System" adds a new dimension to CTFs by, scoring participants on the forensic footprint of their approaches. The system integrates with a [Variety](#Supported_IDS) of open source IDS and provides real time feedback to users based on the detectability of their attacks.
+CTFScore or the "Advanced CTF Scoring System" adds a new dimension to CTFs by, scoring participants on the forensic footprint of their approaches. The system integrates with a [Variety](#supported-ids) of open source IDS and provides real time feedback to users based on the detectability of their attacks.
 
 This allows CTF developers to introduce discussion on defensive methodologies to any CTF and, gives users a reason to explore different attack patterns.
 
@@ -31,11 +31,11 @@ Each component is designed with containerisation in mind, and as a result it is 
 
 ### Manual Deployment
 
-Finally, manual deployment of,course remains an option documentation on this is available [here]()/
+Finally, manual deployment of,course remains an option documentation on this is available [here](https://github.com/Jroo1053/CTFScore/tree/master/Docs#log-aggregator-installation)/
 
 ## Configuration
 
-The system does require some configuration work before it can be correctly deployed again, documentation and exemplar config files are available [here](). In general however, the following is needed:
+The system does require some configuration work before it can be correctly deployed again, documentation and exemplar config files are available [here](https://github.com/Jroo1053/CTFScore/tree/master/Docs#log-aggregator-installation). In general however, the following is needed:
 
 1. The log aggregator will require:
     1. A path to a valid JSON file containing the target alerts
