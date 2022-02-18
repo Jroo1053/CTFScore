@@ -1,0 +1,48 @@
+# Config file for the API/UI portion of the Advanced CTF Scoring System.
+# Defualt Config Used Only For flask db init
+---
+flask_options:
+    # Use this section to modify the var used by flask and the flask plugins
+    SECRET_KEY: ddf5986956c8e276a4a56c22bf8d2901b8dac176e968ed132ba4752e37eacaac
+    SQLALCHEMY_DATABASE_URI: sqlite:////etc/ctfweb/app.db
+    SQLALCHEMY_TRACK_MODIFICATIONS: False
+api_options:
+    # Use this section to modify settings specific to the api itself
+    # List of assets and their associated network identifiers, these will be
+    # fed into the scoring algorithm and will adjust the score given to each 
+    # attack based ont affected asset.
+    registered_assets:
+    - asset:
+        # Human readable asset name, presented to the end user in some menus
+        name: Webserver
+        # The relative value of the asset scored from 0-10, this affects most 
+        # of the scoring algorithms
+        value: 3
+        # Network identifiers associated with each asset
+        network_names: 
+        - 192.168.56.107
+        - ctfscoredev
+    - asset:
+        name: Database
+        value: 10
+        network_names: 
+        - 192.168.56.108
+        - ctfscoredb
+    - asset:
+        name: WebAPI
+        value: 5
+        network_names:
+        - 192.168.56.111
+        - ctfscore
+    # List of valid api keys and IDs registered with log aggregator instances.
+    # This of course, is not at all secure enough for a normal API deployment.
+    # But, this is probably the best way to authenticate API requests 
+    # without adding a ton of complexity
+    key_pairs:
+        - key_pair:
+            id: f93ecef1ac62477f8bcde8e4745dd947b2d8fe0c1766e901d7a03092cc68b2a45592a7de39a3b35d1a9e7573a587ab2caff7d352e911b11ff9ec3c3d50bdf6a3
+            key: ab7363b1afdc3103ebb90dcfa27863c596c54b36033f207fe7aa2215a92cd3819d205d139b2451d690ee38320b0e046d31dde5ac1d64d50c2c41eae083eb5a4ac161a4215b9662b9cce491dba781a830a4118e90f0c2d90d983b74b514529fbcc96696fb294ae815f3fdb09b46dac8c6093d550d7fbf09beae7feb7349b62ab7
+
+ui_options:
+    # Use this section to modify settings specific to the UI 
+    
