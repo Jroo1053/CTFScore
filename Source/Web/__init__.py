@@ -75,7 +75,7 @@ login = LoginManager()
 metrics = PrometheusMetrics.for_app_factory()
 
 
-DEFAULT_CONFIG_PATH = "Source/Web/config.yml"
+DEFAULT_CONFIG_PATH = "/etc/ctfscore/config.yml"
 
 
 
