@@ -5,29 +5,29 @@ RUN apt-get update -y && \
      libffi-dev python3-setuptools python3-venv virtualenv sqlite3
 
 
-WORKDIR /var/lib/ctfweb
+WORKDIR /var/lib/ctfscore
 
 
 
-COPY /Source/requirements.txt /var/lib/ctfweb/
+COPY /Source/requirements.txt /var/lib/ctfscore/
 
 RUN pip3 install -r requirements.txt
 
 
 RUN pip3 install gunicorn
 
-COPY Source/Lib /var/lib/ctfweb/Lib/
+COPY Source/Lib /var/lib/ctfscore/Lib/
 
-COPY Source/Web /var/lib/ctfweb/Web/
+COPY Source/Web /var/lib/ctfscore/Web/
 
-COPY Source/ctfscore.py /var/lib/ctfweb/
+COPY Source/ctfscore.py /var/lib/ctfscore/
 
-COPY Deployment/Docker/CTFScore/config_def.yml /etc/ctfweb/config.yml
+COPY Deployment/Docker/CTFScore/config_def.yml /etc/ctfscore/config.yml
 
-COPY Deployment/Docker/CTFScore/RunApp.sh /var/lib/ctfweb/RunApp.sh
+COPY Deployment/Docker/CTFScore/RunApp.sh /var/lib/ctfscore/RunApp.sh
 
 EXPOSE 8000
 
-RUN rm /etc/ctfweb/config.yml
 
-CMD ["bash", "/var/lib/ctfweb/RunApp.sh"]
+
+ENTRYPOINT ["bash", "/var/lib/ctfscore/RunApp.sh"]
