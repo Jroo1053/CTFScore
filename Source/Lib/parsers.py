@@ -3,10 +3,7 @@ Parsers for each log file format
 Reading JSON takes ages with the default module and even with some of the
 'fast' third party modules. So we need to use cysimdjson
 """
-from cmath import log
 import logging
-from os import name
-from telnetlib import BRK
 import cysimdjson
 
 from Lib.models import IDSAlert

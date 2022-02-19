@@ -13,7 +13,6 @@ import Web
 from .models import LogSource, TargetAsset, TargetNetworkID, UserAlert, UserAsset, IDSAlert, UserNetworkID, User, UserStats
 from .forms import ConfigureForm, LoginForm, RegistrationForm
 from Web import db
-from Lib.scoring import alien_vault_USM_algor
 from werkzeug.utils import redirect
 from flask_login.utils import login_required, login_user
 from flask import (current_app, Blueprint, render_template, jsonify,

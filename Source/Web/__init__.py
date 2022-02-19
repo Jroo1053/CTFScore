@@ -101,6 +101,7 @@ def create_app(args):
     with app.app_context():
         from . import apiroutes
         from . import uiroutes
+        db.create_all()
         app.register_blueprint(apiroutes.api)
         app.register_blueprint(uiroutes.ui)
         metrics.register_default()

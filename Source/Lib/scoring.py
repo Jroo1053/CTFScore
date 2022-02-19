@@ -11,36 +11,8 @@ from time import process_time
 import numpy as np
 
 
-import sklearn
-from sklearn import preprocessing
 
 
-def alien_vault_USM_algor(alerts, assets):
-    """
-    Applies the formula used by alienvault/hp OSSIM SIEM as described by
-    (Renners, 2019). This is a straight-forward formula however, a lot of work
-    is required to produce the initial values.
-    """
-    from sklearn.preprocessing import minmax_scale
-
-    risk_values = []
-    alert_count = 0
-    for alert in alerts:
-        for asset in assets:
-            if alert.dest_ip in asset.asset.network_names:
-                """
-                Normalise different IDS severity scales to 0-5
-                """
-                if alert.ids_name.lower() == "wazuh":
-                    scale = (0, alerts.severity, 16)
-                elif alert.ids_name.lower() == "suricata":
-                    scale = (0, alert.severity, 7)
-                normal_scale = preprocessing.minmax_scale(scale, (0, 5))
-                calculated_risk_value = (asset.asset.value *
-                                         normal_scale[2] * 8) / 25
-                risk_values.append(calculated_risk_value)
-                alert_count += 1
-    return risk_values
 
 
 def alien_vault_USM_single(alert, assets):
