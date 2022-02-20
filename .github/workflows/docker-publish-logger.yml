@@ -11,12 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-<<<<<<< HEAD
   IMAGE_NAME: join(${{ github.repository }},Log)
-=======
-  IMAGE_NAME: ${{ github.repository }}Log
->>>>>>> 68c197cf3dc41d4257922912361811e7bb991171
-
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
