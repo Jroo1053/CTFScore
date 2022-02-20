@@ -18,10 +18,10 @@ Infrastructure
 selenium-screenshot*
 Source/Web/config.yml
 Source/Logging/config.yml
-Test/
 Source/Logging/test_key.txt
 Source/Logging/test_id.txt
 flask_monitoringdashboard.db-journal
 log.html
 output.xml
 report.html
+Test

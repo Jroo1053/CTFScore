@@ -208,7 +208,7 @@ class APIConnection():
         target_url = self.url + self.forward_endpoint
         merged_alerts = []
         for source in alerts:
-            merged_alerts += source
+            merged_alerts.append(source)
         headers = {"user-agent": "ctfscore-log/0.1"}
         if self.max_retries > 0 and self.current_retries == self.max_retries:
             """

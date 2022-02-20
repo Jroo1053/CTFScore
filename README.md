@@ -16,14 +16,69 @@ A demo CTF with, the system attached is a available on [TryHackMe.com](https://t
 
 The system consists of two components:
 
-1. The log aggregator - This is a simple Python service that reads from attached IDS alert sources and forwards the results to the second component. 
+1. The log aggregator - This is a simple Python service that reads from attached IDS and forwards any recorded alerts to the second component.
 2. The API/UI - This component handles the majority of the logic and, ingests, scores and stores the alerts that it receives from attached log aggregators. The UI also provides a connivent means to search through IDS alert history and analyse how the attached IDS track exploits
 
-Using this architecture allows the system to serve both a "single node" CTF where, all services are hosted on the same machine and a "multi-node" CTF where, services are split across a LAN (see below). Either, way any installation will require one instance of the API/UI and at least one log aggregator
+Using this architecture allows the system to serve both a single node CTF where, all services are hosted on the same machine and a multi-node CTF where, services are split across a network (see below). Either, way any installation will require one instance of the API/UI and at least one log aggregator. A minimal example is listed below:
+
+```compose
+
+---
+version: '2.1'
+networks:
+  ctf:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: ctf
+    ipam:
+      config:
+        - subnet: "172.200.0.0/24"
+          gateway: "172.200.0.1"
+services:
+  ctflog:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscorelog:master
+    container_name: ctflog
+    volumes:
+      - ./dockerctf/logs/suricata/:/var/log/suricata
+      - ./dockerctf/confs/ctfscorelog/:/etc/ctfscorelog/
+      - ./dockerctf/logs/:/var/log/ctfscorelog/
+    networks:
+      - ctf
+  ctfscore:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscore:master
+    container_name: ctfscore
+    volumes:
+      - ./dockerctf/confs/ctfweb:/etc/ctfscore/
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: ["CMD", "curl -f", "http://ctfscore:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - ctf
+  suricata:
+    restart: always
+    image: jasonish/suricata:6.0
+    container_name: suricata
+    volumes:
+      - ./dockerctf/logs/suricata:/var/log/suricata/
+      - ./dockerctf/confs/suricata/:/etc/suricata/
+    cap_add:
+      - NET_ADMIN
+      - SYS_NICE
+      - NET_RAW
+    entrypoint: -c "/etc/suricata/suricata.yaml" -i ctf
+    network_mode: host
+
+```
 
 ### Docker
 
-Each component is designed with containerisation in mind, and as a result it is recommended that you use the [provided docker containers]() to integrate the system with your CTF. The docker-compose used to host the public CTF is available [here](), and should be a good starting point for most deployments.
+Each component is designed with containerisation in mind, and as a result it is recommended that you use the [provided containers]() to integrate the system with your CTF. The docker-compose used to host the public CTF is available [here](https://github.com/Jroo1053?tab=packages&repo_name=CTFScore), and should be a good starting point for most deployments.
 
 ### Ansible
 

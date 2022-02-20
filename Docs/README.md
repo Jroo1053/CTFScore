@@ -6,33 +6,31 @@
 
 ### Single Node Deployments
 
-Single node deployment is probably the most straightforward and least computationally intensive deployment option. In this deployment all of the individual components are installed on one node. If the provided docker containers are used this looks like this:
+The single node deployment pattern is probably the most straightforward and least computationally intensive deployment option. In this deployment all of the individual components are installed on one node. If the provided docker containers are used this looks like something like this:
 
 ![Single node deployment architecture (containerised) overview](CTFComponents.drawio.png)
 
-This deployment option is the least secure as the entire scoring system is running on top of a vulnerable CTF. This almost guarantees that it will be completely compromised during the course of a CTF. As a result,this deployment option is should only be used when CTF participants are given their own target nodes and are unable to interact with others. It is also possible to deploy this system without the use of containers
+This deployment option is the least secure as the entire scoring system is running on top of a vulnerable CTF. This almost guarantees that it will be completely compromised during the course of a CTF. As a result,this deployment option should only be used when CTF participants are given their own target nodes and are unable to interact with others as, the validity of both scores and accounts cannot be verified in this deployment pattern. It is possible to deploy this system without the use of containers. However, it is recommended that containers are used and given their own static IPs in a container network if, multiple services are deployed as system can more easily filter and apply events when, services are given their own IP address. The demo CTF uses this methodology, the docker-compose file for it is available for reference [here]()
 
-A Ansible playbook for deploying an example CTF in single node "mode" is available here:
-
+A Ansible playbook for deploying an example CTF in single node "mode" is available [here]()
 ### Multi Node Deployments
 
-The multi node deployment provides a much better experience for all CTF participants howerver, this comes at the cost of increased resource requirements and added complexity. In this deployment the all of the resources are deployed on there own VMs with, all of the CTF targets remaining complete separate from the scoring system:
+The multi node deployment is more complex and computationally intensive but, is better suited to handling multi user CTF. In this deployment all of the resources are deployed on there own VMs with, all of the CTF targets remaining separate from the scoring system:
 
 ![Multi node deployment architecture overview](CTFComponents-MultiNode.drawio.png)
 
-This deployment is the suitable for use with both, networked and multi use CTFs it is much more secure. An Ansible playbook for deploying the an example multi node CTF is available here
-
+This 
 ## Installation options
 
 ### Automated CTF Deployment
 
-The installation and configuration of every system component is a pretty time consuming. Therefore, it is recommended that the ansible playbooks provided in the ```Infrastructure``` section of this repo are used for most deployments. There are roles are currently available for:
+The installation and configuration of every system component is a pretty time consuming. Therefore, it is recommended that the ansible playbooks provided in the ````Deployment``` section of this repo are used for most deployments. There are roles are currently available for:
 
 1. The log aggregator
 2. The API/UI
 3. Suricata 
 
-Each of the roles in the ```Infrastructure``` are separate so you can use a combination of them  to build for any particular deployment. Note, that this deployment option still requires some configuration and should be completed by modifying each of the roles ```vars/main.yml``` file.
+Each of the roles in the ````Deployment``` are separate so you can use a combination of them  to build for any particular deployment. Note, that this deployment option still requires some configuration and should be completed by modifying each of the roles ```vars/main.yml``` file.
 
 ### Log Aggregator Installation
 
