@@ -5,7 +5,7 @@
 flask_options:
     # Use this section to modify the var used by flask and the flask plugins
     SECRET_KEY: c3fa7f92c45f8a33065b44309fe37d593e57d6c29933ebcd39fedc9fda4f5e09
-    SQLALCHEMY_DATABASE_URI: sqlite:////var/lib/ctfweb/Web/app.db
+    SQLALCHEMY_DATABASE_URI: sqlite:////var/lib/ctfscore/Web/app.db
     SQLALCHEMY_TRACK_MODIFICATIONS: False
 api_options:
     # Use this section to modify settings specific to the api itself
@@ -21,7 +21,7 @@ api_options:
         value: 3
         # Network identifiers associated with each asset
         network_names: 
-        - 172.200.0.10
+        - 172.0.0.10
         - apachesite
     # List of valid api keys and IDs registered with log aggregator instances.
     # This of course, is not at all secure enough for a normal API deployment.
@@ -38,7 +38,7 @@ api_options:
         - asset:
             network_names:
             - apachesite
-            - 172.200.0.10
+            - 172.0.0.10
 ui_options:
     # Use this section to modify settings specific to the UI 
     

@@ -15,7 +15,7 @@ The system consists of two components:
 1. The log aggregator - This is a simple Python service that reads from attached IDS and forwards any recorded alerts to the second component.
 2. The API/UI - This component handles the majority of the logic and, ingests, scores and stores the alerts that it receives from attached log aggregators. The UI also provides a connivent means to search through IDS alert history and analyse how the attached IDS track exploits
 
-Using this architecture allows the system to serve both a single node CTF where, all services are hosted on the same machine and a multi-node CTF where, services are split across a network (see below). Either, way any installation will require one instance of the API/UI and at least one log aggregator. A minimal example is listed [here]():
+Using this architecture allows the system to serve both a single node CTF where, all services are hosted on the same machine and a multi-node CTF where, services are split across a network (see below). Either, way any installation will require one instance of the API/UI and at least one log aggregator. A minimal example is listed [here](https://github.com/Jroo1053/CTFScore/blob/master/Deployment/ApacheDemo/docker-compose.yml):
 
 ## Installation
 

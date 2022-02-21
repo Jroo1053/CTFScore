@@ -145,9 +145,6 @@ def post_create_ids_alerts():
             alerts_new
         )
         db.session.commit()
-        logger.info(
-            "ingested %d requests from %s",
-            request.remote_addr, len(alerts_new))
         """
         Tie each alert to user(s) by matching assets
         """
