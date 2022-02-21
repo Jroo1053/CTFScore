@@ -1,0 +1,44 @@
+# Config file for the API/UI portion of the Advanced CTF Scoring System.
+# Make sure to change any keys present in this example config before a 
+# production deployment.
+---
+flask_options:
+    # Use this section to modify the var used by flask and the flask plugins
+    SECRET_KEY: c3fa7f92c45f8a33065b44309fe37d593e57d6c29933ebcd39fedc9fda4f5e09
+    SQLALCHEMY_DATABASE_URI: sqlite:////var/lib/ctfweb/Web/app.db
+    SQLALCHEMY_TRACK_MODIFICATIONS: False
+api_options:
+    # Use this section to modify settings specific to the api itself
+    # List of assets and their associated network identifiers, these will be
+    # fed into the scoring algorithm and will adjust the score given to each 
+    # attack based ont affected asset.
+    registered_assets:
+    - asset:
+        # Human readable asset name, presented to the end user in some menus
+        name: Webserver
+        # The relative value of the asset scored from 0-10, this affects most 
+        # of the scoring algorithms
+        value: 3
+        # Network identifiers associated with each asset
+        network_names: 
+        - 172.200.0.10
+        - apachesite
+    # List of valid api keys and IDs registered with log aggregator instances.
+    # This of course, is not at all secure enough for a normal API deployment.
+    # But, this is probably the best way to authenticate API requests 
+    # without adding a ton of complexity
+    key_pairs:
+        - key_pair:
+            id: a835be629fbefdcc3c1ed4ba5e40dacbab4ee38c55f29ffd61ef27bcc7dfe7a7
+            key: c5a26e05ae326460cb3bed0b5f1932115a240570c66b4dd537bcc206ffb79dc6
+    # List of assets that will be tied to all user accounts
+    # A hacky workaround for managing alerts from HIDS that do not feature a
+    # src_ip.
+    mandatory_assets:
+        - asset:
+            network_names:
+            - apachesite
+            - 172.200.0.10
+ui_options:
+    # Use this section to modify settings specific to the UI 
+    

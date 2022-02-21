@@ -1,0 +1,60 @@
+version: '2.1'
+networks:
+  ctf:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: ctf
+    ipam:
+      config:
+        - subnet: "172.200.0.0/24"
+          gateway: "172.200.0.1"
+services:
+  ctflog:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscorelog:master
+    container_name: ctflog
+    volumes:
+      - ./dockerctf/logs/suricata/:/var/log/suricata
+      - ./dockerctf/confs/ctfscorelog/:/etc/ctfscorelog/
+      - ./dockerctf/logs/:/var/log/ctfscorelog/
+    networks:
+      - ctf
+  ctfscore:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscore:master
+    container_name: ctfscore
+    volumes:
+      - ./dockerctf/confs/ctfweb:/etc/ctfscore/
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: ["CMD", "curl -f", "http://ctfscore:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - ctf
+  suricata:
+    restart: always
+    image: jasonish/suricata:6.0
+    container_name: suricata
+    volumes:
+      - ./dockerctf/logs/suricata:/var/log/suricata/
+      - ./dockerctf/confs/suricata/:/etc/suricata/
+    cap_add:
+      - NET_ADMIN
+      - SYS_NICE
+      - NET_RAW
+    entrypoint: -c "/etc/suricata/suricata.yaml" -i ctf
+    network_mode: host
+  ctfapache:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscoreapache:master
+    ports:
+      - 80:80
+    entrypoint: ["/bin/bash", "-c" , "/var/ossec/bin/wazuh-control start && apache2ctl -D FOREGROUND"]
+    volumes:
+      - ./dockerctf/confs/ctfwebsite/ossec.conf:/var/ossec/etc/ossec.conf
+    networks:
+      ctf:
+        ipv4_address: 172.200.0.10
