@@ -14,6 +14,6 @@ RUN apt-get -y update && DEBIAN_FRONTED=noninteractive TZ=Europe/London
 
 RUN apt-get -y install wazuh-agent
 
-COPY index.html /var/www/html/
+COPY ./index.html /var/www/html/
 
 ENTRYPOINT ["/bin/bash", "-c" , "/var/ossec/bin/wazuh-control start && apache2ctl -D FOREGROUND"]
