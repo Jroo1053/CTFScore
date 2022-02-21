@@ -17,11 +17,11 @@ import numpy as np
 
 def alien_vault_USM_single(alert, assets):
     for asset in assets:
-        if alert.dest_ip in asset.asset.network_names:
-            if alert.log_source.ids_name.lower() == "wazuh":
-                scale = (0, alert.severity, 16)
+        if alert["dest_ip"] in asset.asset.network_names:
+            if alert['log_source']['ids_name'].lower() == "wazuh":
+                scale = (0, alert["severity"], 16)
             elif alert.log_source.ids_name.lower() == "suricata":
-                scale = (0, alert.severity, 7)
+                scale = (0, alert["severity"], 7)
             #normal_scale = preprocessing.minmax_scale(scale, (0, 5))
             scale = np.array(scale)
             """
@@ -34,7 +34,7 @@ def alien_vault_USM_single(alert, assets):
             TODO Normalise different IDS severity scales to 0-5
             """
             calculated_risk_value = (asset.asset.value *
-                                     normal_scale[1] * alert.log_source.reliability) / 25
+                                     normal_scale[1] * alert['log_source']['reliability']) / 25
             return calculated_risk_value, normal_scale[1]
     return 0, 0
 

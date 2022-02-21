@@ -26,3 +26,5 @@ output.xml
 report.html
 Test
 Deployment/ApacheDemo/dockerctf/logs/suricata/eve.json
+logconf
+webconf
