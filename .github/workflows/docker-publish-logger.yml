@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ join(github.repository,Log)}}
+  IMAGE_NAME: jroo1053/ctfscorelog:master
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
