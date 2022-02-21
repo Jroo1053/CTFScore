@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: jroo1053/ctfscorelog:master
+  IMAGE_NAME: jroo1053/ctfscorelog
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
