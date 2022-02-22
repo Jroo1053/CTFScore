@@ -103,70 +103,68 @@
             <canvas id="cat_chart"></canvas>
         </div>
     </figure>
-    <script>
-        const randomNum = () => Math.floor(Math.random() * 255);
-        const randomRGB = () => `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`;
-        var randColour = [];
-        for(var i in {{all_cats | tojson | safe}}){
-            randColour.push(randomRGB)
-        }
-        const data = {
-            labels: {{all_cats | tojson | safe}},
-            datasets: [{
-                label: "Alerts Per Category",
-                data: {{per_cat_count}},
-                backgroundColor: randColour,
-                hoverOffset: 4
-            }]
-        }
-        const cat_share_config = {
-            type: "pie",
-            data,
-            options:{}
-        }
-        var categoryChart = new Chart(
-            document.getElementById('cat_chart'),
-            cat_share_config
-        );
-    </script>
     <figure class="data_card" style="width: 45%;">
-    <h2>
-        Alerts by IDS
-    </h2>
-    <div style="max-width: 75%; margin: auto; display: block;">
-        <canvas id="ids_chart"></canvas>
-    </div>
-    </figure>
+        <h2>
+            Alerts by IDS
+        </h2>
+        <div style="max-width: 75%; margin: auto; display: block;">
+            <canvas id="ids_chart"></canvas>
+        </div>
+        </figure>
     <script>
-        const ids_randomNum = () => Math.floor(Math.random() * 255);
-        const ids_randomRGB = () => `rgb(${ids_randomNum()}, ${ids_randomNum()}, ${ids_randomNum()})`;
-        var ids_randColour = [];
-        for(var i in {{active_ids | tojson | safe}}){
-            ids_randColour.push(ids_randomRGB)
-        }
-        const ids_data = {
-            labels: {{active_ids | tojson | safe}},
-            datasets: [{
-                label: "Alerts by IDS",
-                data: {{ids_totals}},
-                backgroundColor: [
-                'rgb(255, 99, 132)',
-                'rgb(54, 162, 235)',
-                'rgb(255, 205, 86)'
-                ],
-                hoverOffset: 4
-            }]
-        }
-        const ids_totals_config = {
-            type: "pie",
-            ids_data,
-            options:{}
-        }
-        var ids_Chart = new Chart(
-            document.getElementById('ids_chart'),
-            ids_totals_config
-        );
+        window.onload = function (){
+            const randomNum = () => Math.floor(Math.random() * 255);
+            const randomRGB = () => `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`;
+            var randColour = [];
+            for(var i in {{all_cats | tojson | safe}}){
+                randColour.push(randomRGB())
+            }
+            const data = {
+                labels: {{all_cats | tojson | safe}},
+                datasets: [{
+                    label: "Alerts Per Category",
+                    data: {{per_cat_count}},
+                    backgroundColor: randColour,
+                    hoverOffset: 4
+                }]
+            }
+            const cat_share_config = {
+                type: "pie",
+                data,
+                options:{}
+            }
+
+            const ids_randomNum = () => Math.floor(Math.random() * 255);
+            const ids_randomRGB = () => `rgb(${ids_randomNum()}, ${ids_randomNum()}, ${ids_randomNum()})`;
+            var ids_randColour = [];
+            for(var x in {{active_ids | tojson | safe}}){
+                ids_randColour.push(ids_randomRGB)
+            }
+            const ids_data = {
+                labels: {{active_ids | tojson | safe}},
+                datasets: [{
+                    label: "Alerts by IDS",
+                    data: {{ids_totals}},
+                    backgroundColor: ids_randColour,
+                    hoverOffset: 4
+                }]
+            }
+            const ids_totals_config = {
+                type: "pie",
+                ids_data,
+                options:{}
+            }
+            var ids_Chart = new Chart(
+                document.getElementById('ids_chart'),
+                ids_totals_config
+            );
+            var categoryChart = new Chart(
+                document.getElementById('cat_chart'),
+                cat_share_config
+            );
+    }
     </script>
+
 </main>
 <script>
     var $SCRIPT_ROOT = {{ request.url_root| tojson | safe}};      

@@ -1,7 +1,7 @@
 from flask import render_template
 
 
-BASE_DOC_TITLE = "Advanced CTF Scoring System"
+BASE_DOC_TITLE = " Advanced CTF Scoring System"
 
 
 def register_error_handlers(app):
@@ -29,3 +29,10 @@ def register_error_handlers(app):
         header = e.name
         return render_template("error.html", title=title, message=message,
                                header=header), 405
+    @app.errorhandler(500)
+    def handle_internal_error(e):
+        title = "Internal Server Error |" + BASE_DOC_TITLE
+        message= e.description
+        header = e.name
+        return render_template("error.html", title=title, message=message,
+                               header=header), 500
