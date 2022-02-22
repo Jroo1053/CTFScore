@@ -207,7 +207,6 @@ def post_create_ids_alerts():
                 stats.append(current_stats)
             db.session.add_all(stats)
             db.session.commit()
-            return Response("",200)
     except KeyError:
         logger.warning(
             "Received a malformed event forwading request from %s",
