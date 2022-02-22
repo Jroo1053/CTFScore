@@ -75,7 +75,7 @@ login = LoginManager()
 metrics = PrometheusMetrics.for_app_factory()
 
 
-DEFAULT_CONFIG_PATH = "./etc/ctfscore/config.yml"
+DEFAULT_CONFIG_PATH = "/etc/ctfscore/config.yml"
 
 
 
@@ -148,6 +148,7 @@ def load_assets(assets, app):
         db.session.bulk_save_objects(
             new_network_ids
         )
+        db.session.commit()
 def load_config():
     """
     Loads a config from the sources set in the args and returns a dict of

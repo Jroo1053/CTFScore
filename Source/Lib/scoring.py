@@ -20,7 +20,7 @@ def alien_vault_USM_single(alert, assets):
         if alert["dest_ip"] in asset.asset.network_names:
             if alert['log_source']['ids_name'].lower() == "wazuh":
                 scale = (0, alert["severity"], 16)
-            elif alert.log_source.ids_name.lower() == "suricata":
+            elif alert['log_source']['ids_name'].lower() == "suricata":
                 scale = (0, alert["severity"], 7)
             #normal_scale = preprocessing.minmax_scale(scale, (0, 5))
             scale = np.array(scale)

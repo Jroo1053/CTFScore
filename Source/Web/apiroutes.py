@@ -9,7 +9,7 @@ from flask.wrappers import Response
 
 import datetime
 
-from sqlalchemy import desc, false
+from sqlalchemy import desc
 from flask_login import current_user
 import sqlalchemy
 from sqlalchemy.sql import func
@@ -74,9 +74,8 @@ def post_create_ids_alerts():
     Check if the current caller has a valid key an id pair, if not refuse
     connection
     """
-    source_refresh_needed = False
-    log_sources = db.session.query(LogSource).with_entities(
-        LogSource.ids_name, LogSource.id).all()
+    source_refresh_needed = True
+    log_sources = db.session.query(LogSource).all()
     try:
         if not api_is_auth(full_request["key"], full_request["id"]):
             logger.warning(
@@ -99,17 +98,15 @@ def post_create_ids_alerts():
                 """
                 if source_refresh_needed:
                     log_sources = db.session.query(
-                        LogSource).with_entities(LogSource.ids_name).all()
+                        LogSource).all()
                     source_refresh_needed = False
                 if alert:
-                    alert_score, normalised_severity = alien_vault_USM_single(
-                        alert,
-                        current_app.config['api_options'].registered_assets)
                     """
                     Create a log source entry if, this alert originates from a 
                     source that hasn't been ingested yet
                     """
-                    if not alert["log_source"]["ids_name"] in [x._data[0] for x in log_sources]:
+                    sources = [x.ids_name.lower() for x in log_sources]
+                    if not alert["log_source"]["ids_name"].lower() in sources:
                         log_source = LogSource(
                             ids_name=alert["log_source"]["ids_name"],
                             reliability=alert["log_source"]["reliability"]
@@ -117,27 +114,30 @@ def post_create_ids_alerts():
                         db.session.add(log_source)
                         db.session.commit()
                         source_refresh_needed = True
+                    alert_score, normalised_severity = alien_vault_USM_single(
+                        alert,
+                        current_app.config['api_options'].registered_assets)
 
                     """
                     Save the alert to the database but, do not tie it to a 
                     user at this stage
                     """
-                    db_alert = IDSAlert(
-                        dest_ip=alert["dest_ip"],
-                        src_ip=alert["src_ip"],
-                        message=alert["message"],
-                        timestamp=datetime.datetime.strptime(alert["timestamp"],
-                                                            TIME_FORMAT),
-                        severity=alert["severity"],
-                        category=alert["category"],
-                        ids_name=alert["log_source"]["ids_name"],
-                        score=alert_score,
-                        normalised_severity=normalised_severity,
-                        log_source=[
-                            x._data[1] for x in log_sources if x._data[0]
-                            == alert["log_source"]["ids_name"]
-                        ][0])
-                    alerts_new.append(db_alert)
+                    for x in log_sources:
+                        if x.ids_name.lower() == alert["log_source"]["ids_name"].lower():
+                            src_id = x.id
+                            db_alert = IDSAlert(
+                                dest_ip=alert["dest_ip"],
+                                src_ip=alert["src_ip"],
+                                message=alert["message"],
+                                timestamp=datetime.datetime.strptime(alert["timestamp"],
+                                                                    TIME_FORMAT),
+                                severity=alert["severity"],
+                                category=alert["category"],
+                                ids_name=alert["log_source"]["ids_name"],
+                                score=alert_score,
+                                normalised_severity=normalised_severity,
+                                log_source=src_id)
+                            alerts_new.append(db_alert)
             db.session.bulk_save_objects(
                 alerts_new
             )
@@ -207,6 +207,7 @@ def post_create_ids_alerts():
                 stats.append(current_stats)
             db.session.add_all(stats)
             db.session.commit()
+            return Response("",200)
     except KeyError:
         logger.warning(
             "Received a malformed event forwading request from %s",

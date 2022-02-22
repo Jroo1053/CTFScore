@@ -177,22 +177,24 @@ def alert(alert_id):
     """
     title = "Alert Breakdown |" + BASE_DOC_TITLE
     breakdown_alert = IDSAlert.query.filter_by(id=alert_id).first()
-    breakdown_meta = db.session.query(
-        TargetAsset, TargetNetworkID, LogSource
+    breakdown_net_id = db.session.query(
+        TargetNetworkID
     ).filter(
         TargetNetworkID.id_string == breakdown_alert.dest_ip
+    ).first()
+    breakdown_asset = db.session.query(
+        TargetAsset
     ).filter(
-        TargetNetworkID.node_id == TargetAsset.id
+        TargetAsset.id == breakdown_net_id.node_id
+    ).first()
+    breakdown_source= db.session.query(
+        LogSource
     ).filter(
         LogSource.id == breakdown_alert.log_source
     ).first()
-
-    if breakdown_meta:
-        return render_template("scoring_breakdown.html",
-                               alert=breakdown_alert, title=title,
-                               asset=breakdown_meta._data[0], source=breakdown_meta._data[2])
     return render_template("scoring_breakdown.html",
-                           title=title, alert=breakdown_alert)
+                               alert=breakdown_alert, title=title,
+                               asset=breakdown_asset, source=breakdown_source)
 
 
 @ui.route("/register", methods=["GET", "POST"])
