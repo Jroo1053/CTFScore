@@ -75,7 +75,7 @@ login = LoginManager()
 metrics = PrometheusMetrics.for_app_factory()
 
 
-DEFAULT_CONFIG_PATH = "/etc/ctfscore/config.yml"
+DEFAULT_CONFIG_PATH = "./etc/ctfscore/config.yml"
 
 
 
@@ -127,12 +127,12 @@ def load_assets(assets, app):
                             name=asset.asset.name,
                             value=asset.asset.value,
                         ))
-                db.session.bulk_save_objects(
-                    new_assets
-                )
             except:
                 db.session.rollback()
-        
+        db.session.bulk_save_objects(
+            new_assets
+        )
+        db.session.commit()
         new_network_ids =  []
         for asset in assets:
             for identity in asset.asset.network_names:
@@ -145,10 +145,9 @@ def load_assets(assets, app):
                             TargetAsset.id
                         ).first()._data[0])
                     )
-            db.session.bulk_save_objects(
-                new_network_ids
-            )
-        db.session.commit()
+        db.session.bulk_save_objects(
+            new_network_ids
+        )
 def load_config():
     """
     Loads a config from the sources set in the args and returns a dict of
