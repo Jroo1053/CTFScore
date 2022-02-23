@@ -107,7 +107,7 @@ def parse_single_line_json(source):
                             dest_ip=alert.at_pointer(
                                 source.alert_fields.dest_ip),
                             src_ip=alert.at_pointer(
-                                source.alert_fields.src_ip),
+                                source.alert_fields.dest_ip),
                             message=alert.at_pointer(
                                 source.alert_fields.message),
                             timestamp=alert.at_pointer(
