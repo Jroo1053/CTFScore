@@ -255,7 +255,7 @@ def get_retrive_alerts(id):
                 UserAlert.user_id == current_user.id
             ).filter(
                 UserAlert.alert_id == IDSAlert.id
-            ).limit(10000).all()
+            ).order_by(desc(IDSAlert.timestamp)).limit(10000).all()
             return jsonify(alerts)
         return Response("", 405)
     else:
