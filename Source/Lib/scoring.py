@@ -30,6 +30,8 @@ def alien_vault_USM_single(alert, assets):
                     score_fix = 3
                 elif alert["severity"] == 3:
                     score_fix = 1
+                else:
+                    score_fix = 2 
                 
                 scale = (1, score_fix, 3)
             #normal_scale = preprocessing.minmax_scale(scale, (0, 5))
