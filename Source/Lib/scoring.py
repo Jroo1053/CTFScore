@@ -25,7 +25,7 @@ def alien_vault_USM_single(alert, assets):
                 Quick fix for me getting the suricata scales wrong. Also 1 is
                 the most severe alert and not 3 so we've got to invert the result
                 """
-                score_fix = 2
+                score_fix = 2.0
                 if alert["severity"] == 1:
                     score_fix = 3
                 elif alert["severity"] == 3:
