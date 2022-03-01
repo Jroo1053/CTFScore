@@ -55,12 +55,16 @@
             <!--TODO Get Scale From Logger -->
             {% if source.ids_name == "Wazuh" %}
             <li>
-                IDS Severity Range: 0-16
+                IDS Severity Range: 0-15
             </li>
             {% elif source.ids_name == "Suricata" %}
             <li>
-                IDS Severity Range: 0-7
+                IDS Severity Range: 1-3*
             </li>
+            <p>
+                *Note that, Suricata inverts the normal severity scale so an alert with a severity of 1 is, the most critical whereas, an alert with severity of
+                3 is not important. The scoring system does account for this.
+            </p>
             {% endif %}
         </ul>
     </figure>

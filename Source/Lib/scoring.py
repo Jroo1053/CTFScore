@@ -19,9 +19,19 @@ def alien_vault_USM_single(alert, assets):
     for asset in assets:
         if alert["dest_ip"] in asset.asset.network_names:
             if alert['log_source']['ids_name'].lower() == "wazuh":
-                scale = (0, alert["severity"], 16)
+                scale = (0, alert["severity"], 15)
             elif alert['log_source']['ids_name'].lower() == "suricata":
-                scale = (0, alert["severity"], 7)
+                """
+                Quick fix for me getting the suricata scales wrong. Also 1 is
+                the most severe alert and not 3 so we've got to invert the result
+                """
+                score_fix = 0
+                if alert["severity"] == 1:
+                    score_fix = 3
+                elif alert["severity"] == 3:
+                    score_fix = 1
+                
+                scale = (1, score_fix, 3)
             #normal_scale = preprocessing.minmax_scale(scale, (0, 5))
             scale = np.array(scale)
             """
