@@ -34,6 +34,13 @@ This format matches the one currently implemented by the log aggregator
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f%z"
 
 
+"""
+Quick fix for preventing IDS alerts from the system itself from being ingested
+. In the future this, should be configured from config.yml
+"""
+FILTERED_MESSAGES=[
+    "Docker: Error message"
+]
 
 @api.route("/status", methods=["GET"])
 def api_get_status():
@@ -123,14 +130,15 @@ def post_create_ids_alerts():
                     user at this stage
                     """
                     for x in log_sources:
-                        if x.ids_name.lower() == alert["log_source"]["ids_name"].lower() and alert_score > 0:
+                        if x.ids_name.lower() == alert["log_source"]["ids_name"].lower()\
+                                and alert_score > 0 and not alert["message"] in FILTERED_MESSAGES :
                             src_id = x.id
                             db_alert = IDSAlert(
                                 dest_ip=alert["dest_ip"],
                                 src_ip=alert["src_ip"],
                                 message=alert["message"],
                                 timestamp=datetime.datetime.strptime(alert["timestamp"],
-                                                                    TIME_FORMAT),
+                                                                     TIME_FORMAT),
                                 severity=alert["severity"],
                                 category=alert["category"],
                                 ids_name=alert["log_source"]["ids_name"],
