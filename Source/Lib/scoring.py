@@ -25,15 +25,13 @@ def alien_vault_USM_single(alert, assets):
                 Quick fix for me getting the suricata scales wrong. Also 1 is
                 the most severe alert and not 3 so we've got to invert the result
                 """
-                score_fix = 0
+                score_fix = 2
                 if alert["severity"] == 1:
                     score_fix = 3
                 elif alert["severity"] == 3:
                     score_fix = 1
-                else:
-                    score_fix = 2 
                 
-                scale = (1, score_fix, 3)
+                scale = (0, score_fix, 3)
             #normal_scale = preprocessing.minmax_scale(scale, (0, 5))
             scale = np.array(scale)
             """

@@ -123,7 +123,7 @@ def post_create_ids_alerts():
                     user at this stage
                     """
                     for x in log_sources:
-                        if x.ids_name.lower() == alert["log_source"]["ids_name"].lower() and alert_score >0:
+                        if x.ids_name.lower() == alert["log_source"]["ids_name"].lower():
                             src_id = x.id
                             db_alert = IDSAlert(
                                 dest_ip=alert["dest_ip"],
