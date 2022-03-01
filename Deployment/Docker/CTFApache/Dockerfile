@@ -2,7 +2,7 @@ FROM geerlingguy/docker-ubuntu2004-ansible
 
 RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone
 
-RUN apt-get -y update && DEBIAN_FRONTED=noninteractive TZ=Europe/London apt-get -y install apache2 curl gpg gpg-agent
+RUN apt-get -y update && DEBIAN_FRONTED=noninteractive TZ=Europe/London && apt-get -y install apache2 curl gpg gpg-agent
 
 RUN apt-get -y install openssh-server
 

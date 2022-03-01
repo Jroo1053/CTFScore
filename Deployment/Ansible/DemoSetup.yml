@@ -1,0 +1,14 @@
+- name: Install Docker
+  hosts: DemoNodes
+  roles:
+    - docker
+
+- name: Install Docker Compose
+  hosts: DemoNodes
+  roles:
+    - compose
+
+- name: Setup CTF
+  hosts: DemoNodes
+  roles:
+    - democtf

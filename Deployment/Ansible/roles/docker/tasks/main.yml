@@ -1,0 +1,57 @@
+---
+# Installs docker & sets up non-root access
+
+- name: Install dependencies
+  become: true
+  apt:
+    update_cache: true
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+
+
+- name: Add GPG Key
+  become: true
+  shell: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
+  
+- name: Install x86 Repo
+  become: true
+  shell: "echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu focal stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null"
+  when:  ansible_architecture == "x86_64"
+
+- name: Install ARM Repo
+  become: true
+  shell:  "echo 'deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu focal stable' | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+  when: ansible_architecture == "arm64"
+
+
+- name: Install Docker
+  become: true
+  apt:
+    update_cache: true
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+
+- name: Add Current User To Docker Group
+  become: true
+  user:
+    name: "{{ ansible_user_id }}"
+    groups: docker
+    append: true
+
+- name: Reboot for safety 
+  reboot:
+
+- name: Enable Docker Daemon
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Validate Non-Root Access
+  shell: "docker run hello-world"
+

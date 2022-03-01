@@ -1,0 +1,90 @@
+---
+
+# Sets up demo ctf
+
+- name: Create "build" dir
+  file:
+    path: /var/lib/ctf
+    state: directory
+    mode: 0644
+
+- name: Copy CTF resources
+  synchronize:
+    src: "wazuh-docker/dockerctf/"
+    dest: /var/lib/ctf/dockerctf
+
+- name: Copy Dockerfile
+  copy:
+    src: "wazuh-docker/docker-compose.yml"
+    dest: /var/lib/ctf
+    mode: 0644
+
+- name: Create Target User
+  user:
+    name: grafana-admin
+    password: $6$ptoQwBy/gkonPuzy$J6G73qVfQe5ZrdC9VDc8duMl5PA0FqGX7tMEusGCt/hZRuBaMLY2qUE3AoR88KWmnE80kSj/d6I.YU/WoM0Yv0
+    shell: /bin/bash
+    groups:
+      - docker
+
+- name: Reconfigure SSH
+  copy:
+    src: sysconfs/sshd_config
+    dest: /etc/ssh/sshd_config
+
+- name: Copy Scary SSH Banner
+  copy:
+    src: sysconfs/issue.net
+    dest: /etc/issue.net
+
+- name: Create root flag
+  become: yes
+  copy:
+    src: sysconfs/root.txt
+    dest: /root/
+    owner: root
+
+- name: Restart SSH
+  systemd:
+    name: ssh
+    state: restarted
+
+
+
+- name: Docker-Compose Up
+  shell: docker-compose up -d -f /var/lib/ctf/docker-compose.yml
+  timeout: 120
+
+
+- name: Logout of docker reg
+  shell: docker logout
+
+
+
+- name: Install Wazuh Agent GPG key
+  become: true
+  shell: curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+
+- name: Add the Wazuh repo
+  become: true
+  shell: echo "deb https://packages.wazuh.com/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
+
+
+- name: Install Wazuh-Agent
+  become: true
+  apt:
+    pkg: wazuh-agent
+    update_cache: true
+
+- name: Copy ossec.conf to dest
+  copy:
+    src: sysconfs/ossec.conf
+    dest: /var/ossec/etc/ossec.conf
+
+- name: Enable Wazuh Agent
+  become: true
+  systemd:
+    name: wazuh-agent
+    daemon_reload: true
+    enabled: true
+    state: started
