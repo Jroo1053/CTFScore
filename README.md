@@ -29,7 +29,7 @@ Each component is designed with containerisation in mind, and as a result it is 
 
 ### Manual Deployment
 
-Finally, manual deployment remains an option with, documentation on this is available [here](https://github.com/Jroo1053/CTFScore/tree/master/Docs#log-aggregator-installation)/
+Finally, manual deployment remains an option with, documentation on this is available [here](https://github.com/Jroo1053/CTFScore/tree/master/Docs#log-aggregator-installation)
 
 ## Configuration
 
@@ -54,7 +54,7 @@ The current support list is as follows, note that "tentative" support means that
 | Suricata | Supported & Tested |
 | Teler | Tentative Support |
 
-All IDS will require some level of configuration before their events can be ingested by the log aggregator, more info on this is available [here](). One of the main goals of this project is too support as many IDS as possible so this list is subject to change.
+All IDS will require some level of configuration before their events can be ingested by the log aggregator, more info on this is available [here](https://github.com/Jroo1053/CTFScore/blob/master/Docs/IDSJSONTable.md). One of the main goals of this project is too support as many IDS as possible so this list is subject to change.
 
 ## Licence
 
