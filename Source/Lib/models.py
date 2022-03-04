@@ -214,7 +214,7 @@ class APIConnection():
             """
             Stop exectition if x number of requests have occurred since last
             successfull request. Usefull for killing containerised deployments
-            of the logger
+            of the log aggergator
             """
             logger.error(
                 "The max number of HTTP retries ({}) has been exceeded".format(

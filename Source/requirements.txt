@@ -36,3 +36,4 @@ WTForms==3.0.1
 cysimdjson
 jsonpickle
 flask_cors
+PyMySQL==1.0.2

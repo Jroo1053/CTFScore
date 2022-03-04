@@ -40,7 +40,7 @@ except ImportError:
     from yaml import Loader, Dumper
 import sqlalchemy
 from prometheus_flask_exporter import PrometheusMetrics
-
+import pymysql
 parser = ArgumentParser(
     description="Advanced CTF Scoring System - Web UI/ Api")
 parser.add_argument("-c", "--config-file", dest="config_file_path",
@@ -75,7 +75,8 @@ login = LoginManager()
 metrics = PrometheusMetrics.for_app_factory()
 
 
-DEFAULT_CONFIG_PATH = "/etc/ctfscore/config.yml"
+
+DEFAULT_CONFIG_PATH = "/etc/ctfscore/config.yml""
 
 
 
@@ -101,6 +102,7 @@ def create_app(args):
     with app.app_context():
         from . import apiroutes
         from . import uiroutes
+        
         db.create_all()
         app.register_blueprint(apiroutes.api)
         app.register_blueprint(uiroutes.ui)

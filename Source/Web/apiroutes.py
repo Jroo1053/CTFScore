@@ -17,11 +17,9 @@ from sqlalchemy.sql import func
 from Web import db
 from .models import (IDSAlert, User, UserAlert, UserAsset, UserNetworkID,
                      UserStats, LogSource)
-from Lib.models import DictObj
 from Web.utils import api_is_auth
 from Lib.scoring import alien_vault_USM_single
 import logging
-from Web import metrics
 
 api = Blueprint("api", __name__, url_prefix="/api/")
 
@@ -36,10 +34,10 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f%z"
 
 """
 Quick fix for preventing IDS alerts from the system itself from being ingested
-. In the future this, should be configured from config.yml
+. In the future this, should be configured from config.yml. 
 """
 FILTERED_MESSAGES=[
-    "Docker: Error message"
+    "Docker: Error message", "Interface entered in promiscuous(sniffing) mode."
 ]
 
 @api.route("/status", methods=["GET"])
@@ -230,7 +228,7 @@ def post_create_ids_alerts():
 @ api.route("/events/<event_id>", methods=["GET"])
 def get_retrive_alert(event_id):
     """
-    Retrive a orjson representation of the alert specified by the event_id
+    Retrive a json representation of the alert specified by the event_id
     """
     alert = IDSAlert.query.all()
     if alert:
@@ -251,7 +249,7 @@ def get_retrive_alert(event_id):
 @ api.route("/events/all/<id>", methods=["GET"])
 def get_retrive_alerts(id):
     """
-    Retrives orjson represnetations of all the alerts registered with the 
+    Retrives json represnetations of all the alerts registered with the 
     system, for a specific user.
     Currently limited to 10,000 alerts to reduce load.
     """

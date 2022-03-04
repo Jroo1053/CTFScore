@@ -1,13 +1,9 @@
 """
 This file contains all of the routes used by the UI
 """
-import imp
-from os import access, name
-import re
 import numpy as np
 import secrets
 from flask_login import current_user, logout_user
-from flask_wtf import form
 
 import Web
 from .models import LogSource, TargetAsset, TargetNetworkID, UserAlert, UserAsset, IDSAlert, UserNetworkID, User, UserStats
@@ -19,10 +15,8 @@ from flask import (current_app, Blueprint, render_template, jsonify,
                    request, url_for, redirect, flash)
 from werkzeug.urls import url_parse
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import load_only
 from sqlalchemy.sql import func
 
-from werkzeug.exceptions import BadRequest, NotFound
 ui = Blueprint("ui", __name__, url_prefix="/")
 
 
@@ -208,11 +202,7 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for("ui.index"))
     reg_form = RegistrationForm()
-    """
-    if reg_form.append_id.data:
-        reg_form.registered_assets.append_entry()
-        return render_template('register.html',form=reg_form)
-    """
+    
     if reg_form.validate_on_submit() and reg_form.submit.data:
         if len(reg_form.registered_assets.data) != len(set(reg_form.registered_assets.data)):
             flash("Assets Must Be Unique")
