@@ -91,6 +91,7 @@
         });
         setInterval(function(){
             {{ids}}_table.ajax.reload();
+            {{ids}}_table.draw();
         }, 2000);
 
     </script>
@@ -155,6 +156,7 @@
                 cat_share_config
             );
     }
+
     </script>
 
 </main>

@@ -212,7 +212,7 @@ class APIConnection():
         headers = {"user-agent": "ctfscore-log/0.1"}
         if self.max_retries > 0 and self.current_retries == self.max_retries:
             """
-            Stop exectition if x number of requests have occurred since last
+            Stop execution if x number of requests have occurred since last
             successfull request. Usefull for killing containerised deployments
             of the log aggergator
             """

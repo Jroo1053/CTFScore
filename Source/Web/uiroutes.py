@@ -49,21 +49,24 @@ def index():
     ).all()
     triggered_ids = []
     ids_totals = []
-    for ids in raw_triggered_ids:
-        triggered_ids.append(ids._data[0])
-        ids_totals.append(db.session.query
-                          (
-                              UserAlert
-                          ).filter(
-                              UserAlert.user_id == current_user.id
-                          ).filter(
-                              UserAlert.alert_id == IDSAlert.id
-                          ).filter(
-                              IDSAlert.ids_name == ids._data[0]
-                          )
-                          .with_entities(
-                              func.count(IDSAlert.ids_name)
-                          ).all()[0]._data[0])
+    if current_app.config['ui_options'].dynamic_ids.enabled:
+        for ids in raw_triggered_ids:
+                triggered_ids.append(ids._data[0])
+                ids_totals.append(db.session.query
+                                (
+                                    UserAlert
+                                ).filter(
+                                    UserAlert.user_id == current_user.id
+                                ).filter(
+                                    UserAlert.alert_id == IDSAlert.id
+                                ).filter(
+                                    IDSAlert.ids_name == ids._data[0]
+                                )
+                                .with_entities(
+                                    func.count(IDSAlert.ids_name)
+                                ).all()[0]._data[0])
+    else:
+        triggered_ids = current_app.config['ui_options'].dynamic_ids.expected_ids
     count_of_cats = db.session.query(
         UserAlert
     ).filter(
