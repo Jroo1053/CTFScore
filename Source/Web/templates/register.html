@@ -2,26 +2,21 @@
 
 {% block content %}
 
-<main class="flex_container">
+<main class="flex_container" style="align-items: baseline;">
     <div class="data_card" style="width: 85%;">
         <h3>Register</h3>
         <p>
-            Create a new account with the system and register one of the nodes
-            that you are currently in control of here.
-            The system uses this information to calculate scores on a per user basis
-            so make sure, that this info is correct if, you want an accurate score.
+            Create a new account with the system here. Make sure to register the computers that you will use to interact with the CTF.
+            The system uses this information to isolate attacks from different users.
+            So, make sure that this information is correct if you want an accurate score. 
         </p>
-        <p>
-            Nodes can be identified either by hostnames or IP addresses and it is 
-            recommended that use both identifiers.
-        </p>
-        <p>
-            If your using Linux you should be able to retrieve a list of all the IPs associated with your node with:
+        <p>  
+            If you're using Linux you will be able to retrieve a list of all the IPs associated with your node by running the following commands:
         </p>
         <code>
             ip a
         </code>
-        <p>or</p>
+        <p>or:</p>
         <code>
             ifconfig
         </code>
@@ -32,9 +27,8 @@
             ipconfig
         </code>
         <p>
-            Please note, that the IP you register must be the one associated 
-            with the adapter that interacts with the network used to host this CTF. 
-            Otherwise, no NIDs alerts will be ingested by the system.
+            Note that the IPs you register must be the ones associated with the adapter that will be used to interact with the CTF.
+            Otherwise, no IDS alerts will be correctly processed. This IP should already be set as the first identifier.
         </p>
         <form action="" method="post">
             {{ form.hidden_tag() }}
@@ -46,13 +40,14 @@
                 {% endfor %}
             </p>
             <p>
-                <label for="registered_assets_0">Network Identifiers</label>
+                <label for="registered_assets_0">Controlled IP Addresses:</label>
             <ul>
-                {% for asset in form.registered_assets %}
                 <li style="margin: 16px;">
-                    {{ asset(size=32) }}
+                    {{ form.registered_assets[0](size=32, value=user_ip) }}
                 </li>
-                {% endfor %}
+                <li style="margin: 16px;">
+                    {{ form.registered_assets[1](size=32) }}
+                </li>
             </ul>
             </p>
             <p>{{ form.submit() }}</p>
@@ -67,8 +62,8 @@
         {% endif %}
         {% endwith %}
         {% if new_token %}
-        <h4>Access Token</h4>
-        <code id="token_display" style="word-wrap: break-word;">{{new_token}}</code>
+        <h4 style="margin: 1em;">Access Token</h4>
+        <code id="token_display" style="word-wrap: break-word; max-width: 75vw; background-color: #f4f4f4;">{{new_token}}</code>
         <button onclick="CopyToClip()" id="copy_button">Copy Key</button>
         <p>
             <em>Note:</em> This token will only be shown once, so make sure it's stored in a secure location.

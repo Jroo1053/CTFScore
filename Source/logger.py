@@ -19,10 +19,12 @@
 """
 #pylint: disable=no-member
 
+from line_profiler import LineProfiler
 from argparse import ArgumentParser
 from ast import parse
 from email.policy import default
 from os import EX_OSFILE, path
+import profile
 import sched
 import time
 import sys
@@ -31,6 +33,7 @@ import logging
 from Lib.utils import get_config_opts, parse_logs
 from Lib.models import APIConnection, DictObj, LogSource
 
+import line_profiler
 
 try:
     logging.basicConfig(
@@ -148,17 +151,11 @@ def read_events(log_sources):
     if args.is_verbose:
         print("Reading events from logs sources")
     lastestevents = []
-    for source in (log_sources):
-        if args.is_benchmark and args.is_rand_json == False:
-            lastestevents.append(parse_logs(source, is_benchmark=True))
-        elif args.is_benchmark and args.is_rand_json:
-            lastestevents.append(parse_logs(source, is_benchmark=True,
-                                            is_rand_json=True))
-        elif args.is_rand_json == True and args.is_benchmark == False:
-            lastestevents.append(parse_logs(source, is_benchmark=False,
-                                is_rand_json=True))
-        else:
-            lastestevents.append(parse_logs(source))
+    for source in log_sources:
+        lastestevents.append(parse_logs(source,
+                                        is_benchmark=args.is_benchmark,
+                                        is_rand_json=args.is_rand_json
+                                        ))
     if args.is_verbose:
         print(lastestevents)
     return lastestevents

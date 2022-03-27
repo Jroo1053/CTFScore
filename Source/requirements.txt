@@ -37,3 +37,4 @@ cysimdjson
 jsonpickle
 flask_cors
 PyMySQL==1.0.2
+ujson==4.2.0

@@ -1,4 +1,3 @@
-from time import time
 from flask_login.mixins import UserMixin
 from sqlalchemy.orm import backref
 from Web import db
@@ -113,3 +112,11 @@ class UserStats(db.Model):
     alert_average = db.Column(db.Float)
     alert_max = db.Column(db.Float)
     alert_min = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())
+
+class IDSStats(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    ids_name = db.Column(db.String)
+    total_alerts = db.Column(db.Integer)
+    user_id = db.Column(db.Integer,db.ForeignKey("user.id"))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow())

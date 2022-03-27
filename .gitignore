@@ -29,3 +29,8 @@ Deployment/ApacheDemo/dockerctf/logs/suricata/eve.json
 logconf
 webconf
 Deployment/Ansible/roles/democtf/vars/main.yml
+bench.json
+*.prof
+*.lprof
+*.pclprof
+
