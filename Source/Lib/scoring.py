@@ -45,7 +45,7 @@ def alien_vault_USM_single(alert, assets):
             """
             calculated_risk_value = (asset.asset.value *
                                      normal_scale[1] * alert['log_source']['reliability']) / 25
-            return calculated_risk_value, normal_scale[1]
+            return round(calculated_risk_value,2), round(normal_scale[1],2)
     return 0, 0
 
 

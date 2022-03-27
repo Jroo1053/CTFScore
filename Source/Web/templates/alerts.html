@@ -48,6 +48,9 @@
                 </tr>
             </thead>
         </table>
+        <a href="/api/events/all/{{current_user.id}}" style="margin:0.5em;" download="alerts.json">
+            <button>Download JSON (Last 10000) Alerts</button>
+        </a>
     </figure>
     <script>
         $(document).ready(function () {
@@ -85,7 +88,6 @@
                     window.location.href = ("/alert/" + alert_id)
                 });
         });
-
     </script>
 </main>
 

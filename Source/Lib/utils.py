@@ -3,6 +3,10 @@ Shared utilities for both the logger and API
 """
 import json
 import logging
+from webbrowser import get
+
+from flask import jsonify
+import orjson
 
 from Lib.parsers import parse_single_line_json
 from json.decoder import JSONDecodeError
@@ -14,7 +18,7 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 from timeit import default_timer as timer
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 # List of IDS current supported by the system
 VALID_LOG_SOURCES = ["suricata","teler","wazuh"]
@@ -23,6 +27,10 @@ EXPECTED_GLOBAL_KEYS = ["api_forward_event_endpoint", "api_id_file",
                        "api_is_enabled","api_key_file","api_max_retries",
                        "api_status_endpoint","api_url","polling_rate",
                        "ssl_cert_file"]
+
+# File to log benchmarking stats 
+BENCHMARK_OUTPUT_PATH = "bench.json"
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,21 +59,35 @@ def get_config_opts(path,**is_api_config):
         return opts
 
 
-def parse_logs(source):
+def parse_logs(source, **kwargs):
     """
     Reads alerts from a log source and returns the latest alerts as
     alert objects.
     """
     alerts = []
+    lower_name = source.ids_name.lower()
     # Determine the source of the log
-    if source.ids_name.lower() in VALID_LOG_SOURCES:
+    if lower_name in VALID_LOG_SOURCES:
         try:
-            if source.ids_name.lower() == "suricata" or source.ids_name.lower() == "teler" or source.ids_name.lower() == "wazuh":
-                start = timer()
-                alerts = parse_single_line_json(source)
-                end = timer()
-                logger.info("Parsed events from {} in {} secs".format(
-                    source,timedelta(seconds=end-start)))
+            if lower_name in ["suricata","wazuh","teler"]:
+                if kwargs.get("is_benchmark",None):
+                    start = timer()
+                    alerts,json_parser = parse_single_line_json(source,is_rand_json=kwargs.get("is_rand_json",None))
+                    end = timer()
+                    elasped_time = str(timedelta(seconds=end-start))
+                    with open(BENCHMARK_OUTPUT_PATH,"a") as bench_file:
+                        bench_file.write(json.dumps({
+                            "source":lower_name,
+                            "parse_time":elasped_time,
+                            "json_parser":json_parser,
+                            "event_count":len(alerts),
+                            "start_time":str(start),
+                            "end_time":str(end)
+                        }) +"\n")
+                    logger.info("Parsed events from {} in {} secs".format(
+                        source,elasped_time))
+                else:
+                    alerts,json_parser = parse_single_line_json(source,is_rand_json=kwargs.get("is_rand_json",None))
         except FileNotFoundError:
             source.is_valid = False
             logging.error("Log file - %s not found", source.log_path)
@@ -84,4 +106,5 @@ def parse_logs(source):
         logging.error(
             "Tried to load from an unsupported source, %s", source.ids_name)
     return alerts
+
 

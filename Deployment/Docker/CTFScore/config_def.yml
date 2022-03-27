@@ -24,5 +24,14 @@ api_options:
     key_pairs:
 
 ui_options:
-    # Use this section to modify settings specific to the UI 
-    
+  # Use this section to modify settings specific to the UI
+  monitoring_stack:
+    flask_metrics:
+      enabled: False
+    flask_dashboard:
+      enabled: True
+  dynamic_ids:
+    enabled: False
+    expected_ids:
+      - Wazuh
+      - Suricata

@@ -19,15 +19,21 @@
 """
 #pylint: disable=no-member
 
+from line_profiler import LineProfiler
 from argparse import ArgumentParser
+from ast import parse
+from email.policy import default
 from os import EX_OSFILE, path
+import profile
 import sched
 import time
 import sys
 import logging
+
 from Lib.utils import get_config_opts, parse_logs
 from Lib.models import APIConnection, DictObj, LogSource
 
+import line_profiler
 
 try:
     logging.basicConfig(
@@ -47,10 +53,17 @@ parser.add_argument("-c", "--config-file", dest="config_file_path",
                     help="Select location of config file", metavar="FILE")
 parser.add_argument("-v", "--verbose", dest="is_verbose",
                     help="Verbose Output", action="store_true")
+parser.add_argument("-b", "--benchmark", dest="is_benchmark",
+                    help="Enable The Collection of Enhanced Performance Stats",
+                    default=False, action="store_true")
+parser.add_argument("-r", "--random-json", dest="is_rand_json",
+                    help="Use JSON Parsers Randomly", default=False,
+                    action="store_true")
 parser.set_defaults(is_verbose=False)
 args, _ = parser.parse_known_args()
 task_loop = sched.scheduler(time.time, time.sleep)
 DEFAULT_LOG_PATH = "/etc/ctfscorelog/config.yml"
+
 
 def main():
     """"
@@ -100,8 +113,9 @@ def main():
                 reliability=ids_source.ids.reliability
             ))
     except AttributeError:
-        logging.error(("Failed to load IDS from config: ",ids_source.ids.name))
-        sys.exit(("Failed to load IDS: ",ids_source.ids.name))
+        logging.error(
+            ("Failed to load IDS from config: ", ids_source.ids.name))
+        sys.exit(("Failed to load IDS: ", ids_source.ids.name))
     if args.is_verbose:
         print(log_sources)
     while True:
@@ -137,8 +151,11 @@ def read_events(log_sources):
     if args.is_verbose:
         print("Reading events from logs sources")
     lastestevents = []
-    for source in (log_sources):
-        lastestevents.append(parse_logs(source))
+    for source in log_sources:
+        lastestevents.append(parse_logs(source,
+                                        is_benchmark=args.is_benchmark,
+                                        is_rand_json=args.is_rand_json
+                                        ))
     if args.is_verbose:
         print(lastestevents)
     return lastestevents
@@ -154,16 +171,17 @@ def load_config():
             opts = get_config_opts(args.config_file_path)
             logging.info("Found config file at %s", args.config_file_path)
             return opts
-        except (FileNotFoundError, IsADirectoryError, IOError,KeyError):
+        except (FileNotFoundError, IsADirectoryError, IOError, KeyError):
             logging.warning(
                 "Failed to load config from environment var, trying default path")
             # Try to load from default file
             try:
                 opts = get_config_opts(DEFAULT_LOG_PATH)
                 if opts:
-                    logging.info("Loaded from default path: %s",DEFAULT_LOG_PATH)
+                    logging.info("Loaded from default path: %s",
+                                 DEFAULT_LOG_PATH)
                 return opts
-            except (FileNotFoundError, IsADirectoryError, IOError,KeyError):
+            except (FileNotFoundError, IsADirectoryError, IOError, KeyError):
                 logging.error("Failed to load both config files, exiting!")
                 sys.exit("Config file could not be loaded")
     else:

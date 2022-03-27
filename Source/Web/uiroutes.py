@@ -1,16 +1,17 @@
+# pylint: disable=import-error,pointless-string-statement
 """
 This file contains all of the routes used by the UI
 """
-import numpy as np
 import secrets
-from flask_login import current_user, logout_user
-
-import Web
-from .models import LogSource, TargetAsset, TargetNetworkID, UserAlert, UserAsset, IDSAlert, UserNetworkID, User, UserStats
-from .forms import ConfigureForm, LoginForm, RegistrationForm
 from Web import db
-from werkzeug.utils import redirect
+from .models import (
+    LogSource, TargetAsset, TargetNetworkID, UserAsset, IDSAlert,
+    UserNetworkID, User, UserStats)
+from .forms import ConfigureForm, LoginForm, RegistrationForm
+from flask_login import current_user, logout_user
 from flask_login.utils import login_required, login_user
+
+from Web import db
 from flask import (current_app, Blueprint, render_template, jsonify,
                    request, url_for, redirect, flash)
 from werkzeug.urls import url_parse
@@ -24,7 +25,7 @@ ui = Blueprint("ui", __name__, url_prefix="/")
 Contingency for changing the name of the system as (ACSS) it's really not great
 right now
 """
-BASE_DOC_TITLE = " Advanced CTF Scoring System"
+BASE_DOC_TITLE = " CTFScore"
 
 
 @ui.route("/")
@@ -36,80 +37,11 @@ def index():
     alerts and scoring
     """
     title = "Home |" + BASE_DOC_TITLE
+    triggered_ids = ["Wazuh", "Suricata"]
 
-    current_stats = UserStats.query.filter_by(user_id=current_user.id).first()
-    raw_triggered_ids = db.session.query(
-        UserAlert
-    ).filter(
-        UserAlert.user_id == current_user.id
-    ).filter(
-        UserAlert.alert_id == IDSAlert.id
-    ).with_entities(
-        IDSAlert.ids_name.distinct()
-    ).all()
-    triggered_ids = []
-    ids_totals = []
-    for ids in raw_triggered_ids:
-        triggered_ids.append(ids._data[0])
-        ids_totals.append(db.session.query
-                          (
-                              UserAlert
-                          ).filter(
-                              UserAlert.user_id == current_user.id
-                          ).filter(
-                              UserAlert.alert_id == IDSAlert.id
-                          ).filter(
-                              IDSAlert.ids_name == ids._data[0]
-                          )
-                          .with_entities(
-                              func.count(IDSAlert.ids_name)
-                          ).all()[0]._data[0])
-    count_of_cats = db.session.query(
-        UserAlert
-    ).filter(
-        UserAlert.user_id == current_user.id
-    ).filter(
-        UserAlert.alert_id == IDSAlert.id
-    ).with_entities(
-        func.count(IDSAlert.category.distinct())
-    ).all()
-    all_cats_raw = db.session.query(
-        UserAlert
-    ).filter(
-        UserAlert.user_id == current_user.id
-    ).filter(
-        UserAlert.alert_id == IDSAlert.id
-    ).with_entities(
-        IDSAlert.category
-    ).distinct().all()
-    all_cats = []
-    per_cat_count = []
-    for cat in all_cats_raw:
-        all_cats.append(cat._data[0])
-        per_cat_count.append(db.session.query(
-            UserAlert
-        ).filter(
-            UserAlert.user_id == current_user.id
-        ).filter(
-            UserAlert.alert_id == IDSAlert.id
-        ).filter(
-            IDSAlert.category == cat._data[0]
-        ).with_entities(
-            func.count(IDSAlert.category)
-        ).all()[0]._data[0])
-
-    if current_stats:
-        return render_template("index.html",
-                               user_id=current_user.id,
-                               total_alerts=current_stats.alert_count,
-                               title=title, active_ids=triggered_ids,
-                               count_of_cats=count_of_cats, all_cats=all_cats,
-                               per_cat_count=per_cat_count,
-                               ids_totals=ids_totals, request=request
-                               )
     return render_template("index.html", total_score=0, total_alerts=0,
                            average_alert=0, highest_alert=0, lowest_alert=0,
-                           title=title, request=request)
+                           title=title, request=request, active_ids=triggered_ids)
 
 
 @ui.route("/alerts")
@@ -154,7 +86,7 @@ def configure():
                 db.session.commit()
                 return render_template("configure.html",
                                        form=configure_form, title=title)
-            except:
+            except IntegrityError:
                 flash("That username is already taken")
                 return render_template("register.html", form=reg_form,
                                        title=title)
@@ -181,14 +113,14 @@ def alert(alert_id):
     ).filter(
         TargetAsset.id == breakdown_net_id.node_id
     ).first()
-    breakdown_source= db.session.query(
+    breakdown_source = db.session.query(
         LogSource
     ).filter(
         LogSource.id == breakdown_alert.log_source
     ).first()
     return render_template("scoring_breakdown.html",
-                               alert=breakdown_alert, title=title,
-                               asset=breakdown_asset, source=breakdown_source)
+                           alert=breakdown_alert, title=title,
+                           asset=breakdown_asset, source=breakdown_source)
 
 
 @ui.route("/register", methods=["GET", "POST"])
@@ -199,10 +131,11 @@ def register():
     by an randomly generated access token and a username
     """
     title = "Register |" + BASE_DOC_TITLE
+    user_ip = request.remote_addr
     if current_user.is_authenticated:
         return redirect(url_for("ui.index"))
     reg_form = RegistrationForm()
-    
+
     if reg_form.validate_on_submit() and reg_form.submit.data:
         if len(reg_form.registered_assets.data) != len(set(reg_form.registered_assets.data)):
             flash("Assets Must Be Unique")
@@ -254,11 +187,13 @@ def register():
                             db.session.add(mandatory_asset_id)
                             db.session.commit()
             return render_template("register.html", new_token=new_token,
-                                   form=reg_form, title=title)
+                                   form=reg_form, title=title, user_ip=user_ip)
         except:
             flash("That username is already taken")
-            return render_template("register.html", form=reg_form, title=title)
-    return render_template("register.html", form=reg_form, title=title)
+            return render_template("register.html", form=reg_form, title=title,
+                                   user_ip=user_ip)
+    return render_template("register.html", form=reg_form, title=title,
+                           user_ip=user_ip)
 
 
 @ui.route("/login", methods=["GET", "POST"])
@@ -292,7 +227,7 @@ def login():
 @ui.route("/logout", methods=["GET", "POST"])
 def logout():
     """
-    Forgot to implement this before testing the login function whoops! 
+    Forgot to implement this before testing the login function whoops!
     There isn't a log out page in itself but there are links to the right
     url in the navigation
     """

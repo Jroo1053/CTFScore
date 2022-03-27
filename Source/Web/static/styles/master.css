@@ -2,11 +2,12 @@ body{
     font-family: sans-serif;
     margin: 0px;
     grid-template-columns: auto;
-    grid-template-rows: 0.01fr auto 0.1fr;
+    grid-template-rows: 0.01fr auto 0.1fr 0.1fr;
     grid-template-areas: 
     "nav"
     "main"
     "footer" 
+    "bottom"
     ;
     display:  grid;
     height: 100vw;
@@ -18,30 +19,41 @@ body{
 header{
     grid-area: "nav";
 }
+header h1{
+    margin: .5em;
+}
 header a{
     text-decoration: none;
     color: white;
 }
 nav ul li{
     display: inline-block;
-    margin: 0.5em;
+    padding: .5em;
+    position: relative;
 }
 nav ul li:hover{
     background-color: #DA0037;
 }
 nav{
-    background-color: #313131;
+    width: 100%;
 }
 nav ul{
     padding: 0px;
+    background-color: #313131;
     border-bottom: 1px solid #DA0037;
+    margin-left: 1em;
+    width: 100%;
+    margin-left: 0px;
+    margin-right: 0px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.5);
 }
+
 /* Main Styling */
 
 .flex_container{
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline ;
+    align-items: stretch ;
     justify-content: space-evenly;
     flex-direction: row;
     gap: 1em;
@@ -51,6 +63,7 @@ nav ul{
     background-color: white;
     margin: 0px;
     border: 1px #DA0037 solid;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 }
 .data_card p{
     margin: 1em;
@@ -66,6 +79,9 @@ nav ul{
     margin-left: 50%;
     margin-right: 50%;
 }
+input{
+    border: 1px solid #313131;
+}
 
 button{
     background-color: #DA0037;
@@ -75,6 +91,9 @@ button{
 }
 button:hover{
     background-color: #313131;
+}
+canvas{
+    padding: 1em;
 }
 #submit{
     background-color: #DA0037;
@@ -119,7 +138,17 @@ footer ul li{
 footer ul li a{
     text-decoration: none;
     color:  white;
-    font-size: smaller;
+}
+
+.bottom{
+    grid-area: bottom;
+    background-color: black;
+    color: white;
+    text-align: center;
+    height: 100%;
+}
+.bottom p{
+    padding: .25em;
 }
 
 /* Misc Styling */

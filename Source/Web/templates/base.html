@@ -15,7 +15,7 @@
 </head>
 <body>
     <header>
-        <h1 style="margin-left: 0.5em;">Advanced CTF Scoring System</h1>
+        <h1 style="margin-left: 0.5em;">CTFScore</h1>
         <nav>
             <ul>
                 {% if current_user.is_anonymous %}
@@ -23,7 +23,7 @@
                 <li><a href="{{url_for('ui.register')}}">Register</a></li>
                 {% else %}
                 <li><a href="{{url_for('ui.index')}}">Dashboard</a></li>
-                <li><a href="{{url_for('ui.alerts')}}">Alert History</a></li>
+                <li><a href="{{url_for('ui.alerts')}}">Alerts</a></li>
                 <!--- This func is broke and not needed currently
                 <li><a href="{{url_for('ui.configure')}}">Configure</a></li>
                 -->
@@ -36,10 +36,12 @@
     {% endblock %}
     <footer style="margin-top: 2em ;">
         <ul>
-            <li><a href="">Advanced CTF Scoring System</a></li>
             <li><a href="https://github.com/Jroo1053/CTFScore/tree/master/Docs">Documentation</a></li>
             <li><a href="https://github.com/Jroo1053/CTFScore/">Source</a></li>
         </ul>
     </footer>
+    <div class="bottom">
+        <p style="font-size: smaller;">CTFScore | Version: 1.0b | Build Date: 27/03/22</p>
+    </div>
 </body>
 </html>

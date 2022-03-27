@@ -74,6 +74,8 @@ class LogSource():
         in the scoring algorithm 
         """
         self.reliability = reliability
+        self.last_alert_timestamp = ""
+        self.last_alert_message = ""
 
     def __repr__(self):
         return "{},{}".format(self.ids_name, self.log_path)
@@ -209,10 +211,10 @@ class APIConnection():
         merged_alerts = []
         for source in alerts:
             merged_alerts.append(source)
-        headers = {"user-agent": "ctfscore-log/0.1"}
+        headers = {"user-agent": "ctfscore-log/1.0b"}
         if self.max_retries > 0 and self.current_retries == self.max_retries:
             """
-            Stop exectition if x number of requests have occurred since last
+            Stop execution if x number of requests have occurred since last
             successfull request. Usefull for killing containerised deployments
             of the log aggergator
             """
@@ -225,7 +227,7 @@ class APIConnection():
             if len(merged_alerts) > 0:
                 logger.info((
                     "Forwarding the following to the API: %s", merged_alerts))
-                request_json = jsonpickle.encode(merged_alerts,make_refs=False)
+                request_json = jsonpickle.encode(merged_alerts, make_refs=False)
                 final_json = APIRequest(request_json, self.key, self.id)
                 if is_verbose:
                     print(jsonpickle.encode(final_json, indent=1))

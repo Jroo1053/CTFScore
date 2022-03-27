@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<main class="flex_container">
+<main class="flex_container" style="justify-content: flex-start; align-items: baseline;">
 
     <figure class="data_card" style="width: 100%; margin: 1em;">
-        <h3> Scoring Breakdown For Alert {{alert.id}} ({{alert.message}})</h3>
+        <h3> Scoring Breakdown For Alert:
+            {{alert.id}} ({{alert.message}})</h3>
     </figure>
     <figure class="data_card" style="width: 45%; margin: 1em;">
         <h3>Alert Details</h3>
@@ -12,7 +13,9 @@
             <li>
                 Alert ID: {{alert.id}}
             </li>
-            <li>Alert Timestamp: {{alert.timestamp}}</li>
+            <li>
+                Alert Timestamp: {{alert.timestamp}}
+            </li>
             <li>
                 Source IP: {{alert.src_ip}}
             </li>
@@ -28,6 +31,9 @@
             {% if alert.severity %}
                 <li> 
                     Alert Severity: {{alert.severity}}
+                </li>
+                <li>
+                    Alert Score: {{alert.score}}
                 </li>
             {% endif %}
         </ul>
@@ -68,6 +74,17 @@
             {% endif %}
         </ul>
     </figure>
+    <figure class="data_card" style="width: 45%;">
+        <h2>
+            Alert Stats
+        </h2>
+        <ul style="margin: 0.5em">
+            <li id="first_occurrence"> First Occurrence</li>
+            <li id="last_occurrence"> Last Occurrence</li>
+            <li id="total_occurrences"> Total Occurrences:</li>
+            <li id="total_score">Total Score:</li>
+        </ul>
+    </figure>
     <figure class="data_card" style="width: 100%; margin: 1em;">
         <h3>Scoring Walkthrough</h3>
         <p>
@@ -78,27 +95,43 @@
         </code>
         <p>
             Where:
-            <ul style="list-style:inside;">
+            <ul style="list-style:inside; margin: 1em;">
                 <li>
-                AssetValue is the relative value of the asset that was attacked, rated from 0-5.
+                AssetValue is the relative value of the asset that was attacked, rated from 0-5. In this case, the {{asset.name}} has a value of {{asset.value}}
                 </li>
                 <li>
-                Priority measures the severity of the attack and the urgency of investigation, rated from 0-5. Note that, severity levels from different IDS are normalised to fit this scale
+                Priority measures the severity of the attack and the urgency of investigation, rated from 0-5. 
+                Note that, severity levels from different IDS are normalised to fit this scale. The normalised severity of this alert is {{alert.normalised_severity}}
                 </li>
                 <li>
-                Reliability defines the likelihood of a false positive, rated from 0-10
+                Reliability defines the likelihood of a false positive, rated from 0-10. The IDS that triggered this alert, 
+                {{source.ids_name}} has a reliability weighting of {{source.reliability}}
                 </li>
             </ul>
         </p>
         <p>
-            This translates to the following in the case of alert {{alert.id}}
+            This translates to the following in the case of alert {{alert.id}}:
         </p>
         <!---TODO FIX-->
         <code>
-            calculated_risk_value = ({{asset.value}} * {{alert.normalised_severity}} * {{source.reliability}}) / 25
+            calculated_risk_value = ({{alert.score}}) = ({{asset.value}} * {{alert.normalised_severity}} * {{source.reliability}}) / 25
         </code>
     </figure>
     
 </main>
+<script>
+    var $SCRIPT_ROOT = {{ request.url_root| tojson | safe}};
+    async function get_score() {
+        const api_json = await (fetch($SCRIPT_ROOT + 'api/alert/{{alert.id}}/stats/{{current_user.id}}'));
+        const response_json = await api_json.json();
+        if (response_json) {
+            document.getElementById("first_occurrence").innerHTML = "First Occurrence: " + response_json["first_occurrence"]
+            document.getElementById("last_occurrence").innerHTML = "Last Occurrence: " + response_json["last_occurrence"]
+            document.getElementById("total_occurrences").innerHTML = "Total Occurrences: " + response_json["total_occurrences"]
+            document.getElementById("total_score").innerHTML = "Total Impact On Score: " + response_json["total_score"].toFixed(2) + " " + response_json["score_percentage"]
+        }
+    }
+    setInterval(get_score, 2000)
+</script>
 
 {% endblock %}
