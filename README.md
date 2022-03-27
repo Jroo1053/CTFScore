@@ -4,24 +4,25 @@
 
 ## Overview
 
-CTFScore or the "Advanced CTF Scoring System" adds a new dimension to CTFs by, scoring participants on the forensic footprint of their approaches. The system integrates with a [variety](#supported-ids) of open source IDS and provides real time feedback to users based on the detectability of their attacks. Users are also provided with a searchable list of all of the IDS alerts recorded during the course of a CTF and a breakdown of recorded score. This allows CTF developers to introduce discussion on defensive methodologies to any CTF and, gives users a reason to explore different attack patterns.
+CTFScore or the "Advanced CTF Scoring System" adds a new dimension to CTFs by scoring participants on the forensic footprint of their approaches. The system integrates with a [variety](#supported-ids) of open-source IDS, providing real-time feedback to users based on the detectability of their attacks. Users have access to a list of IDS alerts recorded during a CTF and a breakdown of their recorded score. Along with a variety of statistics all of which are updated in real-time. This allows CTF developers to introduce discussions of defensive methodologies to offensive CTFs.
 
-A demo CTF that makes use of the system is a available on [TryHackMe.com](https://tryhackme.com/jr/idsevasion). This room walks users through a complete cyber attack from initial recon to the final post-exploitation tasks and discuses; the footprints of common web scanners and how these footprint can be managed.
+A demo CTF that integrates the system is available on [TryHackMe.com](https://tryhackme.com/jr/idsevasion). This room walks users through a complete cyber-attack from initial recon to the final post-exploitation tasks and discusses the footprints of; web scanners, exploit kits, privilege escalation tools and persistence mechanisms.
 
 ## Architectural Overview
 
 The system consists of two components:
 
 1. The log aggregator - This is a simple Python service that reads from attached IDS and forwards any recorded alerts to the second component.
-2. The API/UI - This component handles the majority of the logic and, ingests, scores and stores the alerts that it receives from attached log aggregators. The UI also provides a connivent means to search through IDS alert history and analyse how the attached IDS track exploits
+2. The API/UI - This component handles most of the logic and; ingests, scores and stores the alerts that it receives from attached log aggregators. The UI also provides a connivent means to search through IDS alert history and analyse how the attached IDS track exploits
 
-Using this architecture allows the system to serve both a single node CTF where, all services are hosted on the same machine and a multi-node CTF where, services are split across a network (see below). Either, way any installation will require one instance of the API/UI and at least one log aggregator. A minimal example is listed [here](https://github.com/Jroo1053/CTFScore/blob/master/Deployment/ApacheDemo/docker-compose.yml):
+This architecture allows the system to serve both a single node CTF where all services are hosted on the same machine and a multi-node CTF where services are split across a network (see below). Either, way any installation will require one instance of the API/UI and at least one log aggregator. A minimal example is listed [here](https://github.com/Jroo1053/CTFScore/blob/master/Deployment/ApacheDemo/docker-compose.yml):
+
 
 ## Installation
 
 ### Docker
 
-Each component is designed with containerisation in mind, and as a result it is recommended that you use the [provided containers](https://github.com/Jroo1053?tab=packages&repo_name=CTFScore) to integrate the system with your CTF. All of the files used to host the public CTF are available [here](), and should be a good starting point for most deployments.
+Each component is designed for containerisation and as a result, it is recommended that you use the [provided containers](https://github.com/Jroo1053?tab=packages&repo_name=CTFScore) to integrate the system with your CTF. All of the files used to host the public CTF are available [here](), and should be a good starting point for most deployments.
 
 ### Ansible
 
@@ -54,7 +55,7 @@ The current support list is as follows, note that "tentative" support means that
 | Suricata | Supported & Tested |
 | Teler | Tentative Support |
 
-All IDS will require some level of configuration before their events can be ingested by the log aggregator, more info on this is available [here](https://github.com/Jroo1053/CTFScore/blob/master/Docs/IDSJSONTable.md). One of the main goals of this project is too support as many IDS as possible so this list is subject to change.
+All IDS will require some level of configuration before their events can be ingested by the log aggregator, more info on this is available [here](https://github.com/Jroo1053/CTFScore/blob/master/Docs/IDSJSONTable.md). One of the main goals of this project is to support as many IDS as possible so this list is subject to change.
 
 ## Licence
 
