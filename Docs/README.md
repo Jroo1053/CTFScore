@@ -6,16 +6,16 @@
 
 ### Single Node Deployments
 
-The single node deployment pattern is probably the most straightforward and least computationally intensive deployment option. In this deployment all of the individual components are installed on one node. If the provided docker containers are used this looks like something like this:
+The single-node deployment pattern is probably the most straightforward and least computationally intensive option. In this deployment, all the individual components are hosted on one system. If the provided docker containers are used this looks like something like this:
 
 ![Single node deployment architecture (containerised) overview](CTFComponents.drawio.png)
 
-This deployment option is the least secure as the entire scoring system is running on top of a vulnerable CTF. This almost guarantees that it will be completely compromised during the course of a CTF. As a result,this deployment option should only be used when CTF participants are given their own target nodes and are unable to interact with others as, the validity of both scores and accounts cannot be verified in this deployment pattern. It is possible to deploy this system without the use of containers. However, it is recommended that containers are used and given their own static IPs in a container network if, multiple services are deployed as system can more easily filter and apply events when, services are given their own IP address. The demo CTF uses this methodology, the docker-compose file for it is available for reference [here]()
+This deployment option is the least secure as the entire scoring system is running on top of a vulnerable CTF. This almost guarantees that it will be compromised during the course of a CTF. As a result, this deployment option should only be used when CTF participants are given their target nodes and are unable to interact with others. As the validity of both scores and accounts cannot be verified in a single-node deployment. It is possible to deploy this system without the use of containers. However, it is recommended that containers are used and given their own static IPs in the container network if multiple services are deployed. This will allow the system to easily filter and apply events. The demo CTF uses this methodology, the docker-compose file for it is available for reference [here](https://github.com/Jroo1053/CTFScore/blob/master/Deployment/Ansible/roles/democtf/files/wazuh-docker/docker-compose.yml)
 
-A Ansible playbook for deploying an example CTF in single node "mode" is available [here]()
+An Ansible playbook for deploying an example CTF in single-node "mode" is available [here](https://github.com/Jroo1053/CTFScore/tree/master/Deployment/Ansible/roles/democtf)
 ### Multi Node Deployments
 
-The multi node deployment is more complex and computationally intensive but, is better suited to handling multi user CTF. In this deployment all of the resources are deployed on there own VMs with, all of the CTF targets remaining separate from the scoring system:
+The multi-node deployment is more complex and computationally intensive but, is better suited to handling multi-user CTF. In this deployment all of the resources are deployed on their own VMs with, all of the CTF targets remaining separate from the scoring system:
 
 ![Multi node deployment architecture overview](CTFComponents-MultiNode.drawio.png)
 
@@ -24,23 +24,23 @@ This
 
 ### Automated CTF Deployment
 
-The installation and configuration of every system component is a pretty time consuming. Therefore, it is recommended that the ansible playbooks provided in the ````Deployment``` section of this repo are used for most deployments. There are roles are currently available for:
+The installation and configuration of every system component is pretty time-consuming. Therefore, it is recommended that the ansible playbooks provided in the ```Deployment``` section of this repo are used for most deployments. There are roles are currently available for:
 
 1. The log aggregator
 2. The API/UI
 3. Suricata 
 
-Each of the roles in the ````Deployment``` are separate so you can use a combination of them  to build for any particular deployment. Note, that this deployment option still requires some configuration and should be completed by modifying each of the roles ```vars/main.yml``` file.
+Each of the roles in the ```Deployment```is separate so you can use a combination of them to build for any particular deployment. Note, that this deployment option still requires some configuration and should be completed by modifying each of the roles ```vars/main.yml``` file.
 
 ### Log Aggregator Installation
 
-The Log aggregator is a simple python application so, the usual steps apply; First grab this repo with ```git clone```, Navigate to the source files at ```/Source/logger.py``` and ```Source/Lib```, then install the required dependences by running ```pip install -r logger_reqs.txt```. If the dependency installation completes successfully it should then be possible to run the log aggregator a specified config file (```python3 /Source/logger.py -c config.yml```).
+The Log aggregator is a simple python application so, the usual steps apply; First grab this repo with ```git clone```, Navigate to the source files at ```/Source/logger.py``` and ```Source/Lib```, then install the required dependencies by running ```pip install -r logger_reqs.txt```. If the dependency installation completes successfully it should then be possible to run the log aggregator in a specified config file (```python3 /Source/logger.py -c config.yml```).
 
-It is also recommended that, the log aggregator is run under ```systemd```, so it can run silently and resume after failure, an example service file is available here.
+It is also recommended that the log aggregator is run under ```systemd```, so it can run silently and resume after failure, an example service file is available [here]().
 
 ### Log Aggregator Configuration
 
-The log aggregator requires some configuration once the installation is complete. This configuration can only be applied through a YAML config file, consisting of two primary sections. The ```global_options``` section contains settings that affect the overall behavior of the programme and is detailed below:
+The log aggregator requires some configuration once the installation is complete. This configuration can only be applied through a YAML config file, consisting of two primary sections. The ```global_options``` section contains settings that affect the overall behaviour of the programme and is detailed below:
 
 ```yaml
 ---
@@ -123,16 +123,16 @@ ids_options:
       name: "Wazuh"
 ```
 
-When complete the config file can the be applied to the log aggregator using the ```-c``` flag. Note, that the log aggregator will attempt to load from the following path ```/etc/ctfscorelog/config.yml``` if a config file is not specified.
+When complete the config file can be applied to the log aggregator using the ```-c``` flag. Note, that the log aggregator will also attempt to load from the following path ```/etc/ctfscorelog/config.yml``` if a config file is not specified.
 
-The only other command line arg is ```-v``` which, toggles verbose output and will print debug info to the screen.
+Other command-line arguments include; "-v" which, toggles verbose mode and "-r" which will randomise the JSON parsing libraries used to process events, this is usually used in conjunction with the benchmarking mode ("-b) which will record additional performance metrics.
 
 ### API Installation
 
 
 ### API Configuration
 
-The API/UI also requires some configuration following the initial installation. Configuration is applied via a YAML file with three mandatory sections. The first section, ```flask_options``` is detailed below:
+The API/UI also requires some configuration following the initial installation. Configuration options are applied via a YAML file with three mandatory sections. The first section, ```flask_options``` is detailed below:
 
 ```yaml
 # Config file for the API/UI portion of the Advanced CTF Scoring System.
@@ -148,7 +148,7 @@ flask_options:
     SQLALCHEMY_TRACK_MODIFICATIONS: False
 ```
 
-The next section is the ```api_options``` section is were the bulk of the configuration lies currently:
+The next section is the ```api_options``` section is where the bulk of the configuration lies currently:
 
 ```yaml
     # Use this section to modify settings specific to the api
