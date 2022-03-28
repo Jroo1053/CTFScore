@@ -1,0 +1,64 @@
+# Config file for the API/UI portion of the Advanced CTF Scoring System.
+# Make sure to change any keys present in this example config before a 
+# production deployment.
+---
+flask_options:
+    # Use this section to modify the var used by flask and the flask plugins
+    SECRET_KEY: ddf5986956c8e276a4a56c22bf8d2901b8dac176e968ed132ba4752e37eacaac
+    SQLALCHEMY_DATABASE_URI: sqlite:////var/lib/ctfscore/Web/app.db
+    SQLALCHEMY_TRACK_MODIFICATIONS: False
+api_options:
+    # Use this section to modify settings specific to the api itself
+    # List of assets and their associated network identifiers, these will be
+    # fed into the scoring algorithm and will adjust the score given to each 
+    # attack based ont affected asset.
+    registered_assets:
+        - asset:
+            name: webserver
+            value: 5
+            network_names:
+            - 172.200.0.10
+            - apachesite
+        - asset:
+            name: grafana
+            value: 8
+            network_names:
+            - 172.200.0.20
+            - ctfgrafana
+        - asset:
+            name: dockerhost
+            value: 10
+            network_names:
+            - 172.200.0.30
+            - dockerhost
+            - localhost
+            
+
+    # List of valid api keys and IDs registered with log aggregator instances.
+    # This of course, is not at all secure enough for a normal API deployment.
+    # But, this is probably the best way to authenticate API requests 
+    # without adding a ton of complexity
+    key_pairs:
+        - key_pair:
+            id: 0787d112ada2289d02f5
+            key: a24debfed3316740fa34
+    # List of assets that will be tied to all user accounts
+    # A hacky workaround for managing alerts from HIDS that do not feature a
+    # src_ip.
+    mandatory_assets:
+        - asset:
+            network_names:
+            - ctfgrafana
+            - 172.200.0.20
+        - asset:
+            network_names:
+            - apachesite
+            - 172.200.0.10
+        - asset:
+            network_names:
+            - dockerhost
+            - localhost
+            - 172.200.0.30
+ui_options:
+    # Use this section to modify settings specific to the UI 
+    

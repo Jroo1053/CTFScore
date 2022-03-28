@@ -1,0 +1,136 @@
+---
+version: '2.1'
+networks:
+  ctf:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: ctf
+    ipam:
+      config:
+        - subnet: "172.200.0.0/24"
+          gateway: "172.200.0.1"
+services:
+  ctflog:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscorelog:master
+    container_name: ctflog
+    volumes:
+      - ./dockerctf/logs/suricata/:/var/log/suricata
+      - ./dockerctf/confs/ctfscorelog/:/etc/ctfscorelog/
+      - ./dockerctf/logs/:/var/log/ctfscorelog/
+      -  ossec_logs:/var/log/wazuh
+    networks:
+      - ctf
+  ctfscore:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscore:master
+    container_name: ctfscore
+    volumes:
+      - ./dockerctf/confs/ctfweb:/etc/ctfscore/
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: ["CMD", "curl -f", "http://ctfscore:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      ctf:
+        ipv4_address: 172.200.0.30
+  suricata:
+    restart: always
+    image: jasonish/suricata:latest
+    container_name: suricata
+    volumes:
+      - ./dockerctf/logs/suricata:/var/log/suricata/
+      - ./dockerctf/confs/suricata/:/etc/suricata/
+    cap_add:
+      - NET_ADMIN
+      - SYS_NICE
+      - NET_RAW
+    entrypoint: /usr/bin/suricata -c "/etc/suricata/suricata.yaml" -i ctf
+    network_mode: host
+  ctfwebsite:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscoreapache:master
+    ports:
+      - 80:80
+    entrypoint: ["/bin/bash", "-c" , "/var/ossec/bin/wazuh-control start && apache2ctl -D FOREGROUND"]
+    volumes:
+      - ./dockerctf/confs/ctfwebsite/ossec.conf:/var/ossec/etc/ossec.conf
+      - ./dockerctf/confs/ctfwebsite/html/:/var/www/html/
+    networks:
+      ctf:
+        ipv4_address: "172.200.0.10"
+    depends_on:
+      wazuh:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "http://ctfwebsite:8080"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+    links:
+      - wazuh:wazuh
+  ctfgrafana:
+    restart: always
+    image: ghcr.io/jroo1053/ctfscoregrafana:master
+    entrypoint: ["/bin/bash", "-c" , '/var/ossec/bin/wazuh-control start && grafana-server -config "/etc/grafana/grafana.ini" -homepath "/usr/share/grafana/"']
+    volumes:
+      - ./dockerctf/confs/ctfgrafana/ossec.conf:/var/ossec/etc/ossec.conf
+      - ./dockerctf/confs/ctfgrafana/grafana.ini:/etc/grafana/grafana.ini
+    networks:
+      ctf:
+        ipv4_address: 172.200.0.20
+    depends_on:
+      wazuh:
+        condition: service_healthy
+    links:
+      - wazuh:wazuh
+    ports:
+      - 3000:3000
+  wazuh:
+    restart: always
+    image: wazuh/wazuh-odfe:4.2.5
+    hostname: wazuh
+    environment:
+      - ELASTICSEARCH_URL=https://elasticsearch:9200
+      - ELASTIC_USERNAME=admin
+      - ELASTIC_PASSWORD=admin
+      - FILEBEAT_SSL_VERIFICATION_MODE=none
+    volumes:
+      - ossec_api_configuration:/var/ossec/api/configuration
+      - ossec_etc:/var/ossec/etc
+      - ossec_logs:/var/ossec/logs
+      - ossec_queue:/var/ossec/queue
+      - ossec_var_multigroups:/var/ossec/var/multigroups
+      - ossec_integrations:/var/ossec/integrations
+      - ossec_active_response:/var/ossec/active-response/bin
+      - ossec_agentless:/var/ossec/agentless
+      - ossec_wodles:/var/ossec/wodles
+      - filebeat_etc:/etc/filebeat
+      - filebeat_var:/var/lib/filebeat
+    healthcheck:
+      test: ["CMD", "curl","-u", "wazuh:wazuh", "-k", "-X", "GET", "https://wazuh:55000/security/user/authenticate"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      ctf:
+        ipv4_address: 172.200.0.50
+        aliases:
+          - wazuh
+
+volumes:
+  ossec_api_configuration:
+  ossec_etc:
+  ossec_logs:
+  ossec_queue:
+  ossec_var_multigroups:
+  ossec_integrations:
+  ossec_active_response:
+  ossec_agentless:
+  ossec_wodles:
+  filebeat_etc:
+  filebeat_var:
+
