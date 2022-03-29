@@ -28,7 +28,6 @@ import logging
 from Lib.utils import get_config_opts, parse_logs
 from Lib.models import APIConnection, DictObj, LogSource
 
-import line_profiler
 
 try:
     logging.basicConfig(
