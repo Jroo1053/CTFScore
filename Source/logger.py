@@ -19,12 +19,7 @@
 """
 #pylint: disable=no-member
 
-from line_profiler import LineProfiler
 from argparse import ArgumentParser
-from ast import parse
-from email.policy import default
-from os import EX_OSFILE, path
-import profile
 import sched
 import time
 import sys
