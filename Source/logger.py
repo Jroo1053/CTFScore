@@ -19,12 +19,8 @@
 """
 #pylint: disable=no-member
 
-from line_profiler import LineProfiler
 from argparse import ArgumentParser
 from ast import parse
-from email.policy import default
-from os import EX_OSFILE, path
-import profile
 import sched
 import time
 import sys
@@ -33,7 +29,6 @@ import logging
 from Lib.utils import get_config_opts, parse_logs
 from Lib.models import APIConnection, DictObj, LogSource
 
-import line_profiler
 
 try:
     logging.basicConfig(
@@ -59,6 +54,9 @@ parser.add_argument("-b", "--benchmark", dest="is_benchmark",
 parser.add_argument("-r", "--random-json", dest="is_rand_json",
                     help="Use JSON Parsers Randomly", default=False,
                     action="store_true")
+parser.add_argument("-bp", "--benchmark-path",
+                    dest="bench_path",help="Write benchmark results to this path",
+                    default="bench.json")
 parser.set_defaults(is_verbose=False)
 args, _ = parser.parse_known_args()
 task_loop = sched.scheduler(time.time, time.sleep)
@@ -154,7 +152,8 @@ def read_events(log_sources):
     for source in log_sources:
         lastestevents.append(parse_logs(source,
                                         is_benchmark=args.is_benchmark,
-                                        is_rand_json=args.is_rand_json
+                                        is_rand_json=args.is_rand_json,
+                                        bench_path=args.bench_path
                                         ))
     if args.is_verbose:
         print(lastestevents)
