@@ -75,7 +75,7 @@ def parse_logs(source, **kwargs):
                     alerts,json_parser = parse_single_line_json(source,is_rand_json=kwargs.get("is_rand_json",None))
                     end = timer()
                     elasped_time = str(timedelta(seconds=end-start))
-                    with open(BENCHMARK_OUTPUT_PATH,"a") as bench_file:
+                    with open(kwargs.get("bench_path",None),"a") as bench_file:
                         bench_file.write(json.dumps({
                             "source":lower_name,
                             "parse_time":elasped_time,

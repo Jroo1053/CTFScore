@@ -34,5 +34,3 @@ bench.json
 *.lprof
 *.pclprof
 *.disabled
-key*
-id*

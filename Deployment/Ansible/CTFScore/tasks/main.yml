@@ -1,0 +1,129 @@
+---
+# tasks file for web
+
+- name: Refresh and update apt
+  become: true
+  apt:
+    update_cache: true
+    upgrade: "yes"
+
+- name: Install Dependencies
+  become: true
+  apt:
+    pkg:
+      - python3-pip
+      - python3-dev
+      - build-essential
+      - libssl-dev
+      - libffi-dev
+      - python3-setuptools
+      - python3-venv
+      - virtualenv
+      - rsync
+      - nginx
+      - sqlite3
+
+- name: Create ctfweb user  
+  become: true
+  user:
+    name: ctfweb
+    password: "!"
+    create_home: false
+
+- name: Create Install Directories
+  become: true
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: "0744"
+    owner: ctfweb
+    group: ctfweb
+  loop:
+    - /var/lib/ctfscore/
+    - /var/log/ctfscore/
+    - /etc/ctfscore/
+
+
+- name: Clone Git Repo
+  git:
+    repo: https://github.com/Jroo1053/CTFScore.git
+    dest: /var/lib/ctfsore
+    clone: true
+    update: true
+
+
+- name: Install Python Packages in venv
+  become_user: ctfweb
+  pip:
+    requirements: /var/lib/ctfweb/web_reqs.txt
+    virtualenv: /var/lib/ctfweb/venv/
+
+- name: Install gunicorn
+  pip:
+    name: gunicorn
+    virtualenv: /var/lib/ctfweb/venv/
+
+
+
+- name: Create Sqlite DB
+  file:
+    path: "/etc/ctfweb/sqlite.db"
+    owner: "ctfweb"
+    group: "ctfweb"
+    state: touch
+
+- name: Generate Priv Key
+  openssl_privatekey:
+    path: /etc/ctfweb/privkey.key
+    size: 2048
+
+- name: Generate Cert Signing Request
+  openssl_csr:
+    path: /etc/ctfweb/csr.key
+    privatekey_path: /etc/ctfweb/privkey.key
+
+- name: Create self signed cert
+  community.crypto.x509_certificate:
+    path: /etc/ctfweb/ctfscore_cert.crt
+    privatekey_path: /etc/ctfweb/privkey.key
+    csr_path: /etc/ctfweb/csr.key
+    provider: selfsigned
+
+- name: Copy systemd definition
+  become: true
+  copy:
+    src: "ctfscore.service"
+    dest: /etc/systemd/system/
+
+- name: Copy ngnix config
+  become: true
+  copy:
+    src: "ctfscore"
+    dest: "/etc/nginx/sites-available/ctfscore"
+
+
+- name: Start Scoring System Service
+  become: true
+  systemd:
+    name: ctfscore.service
+    state: started
+    enabled: true
+
+- name: Disable nginx default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Enable nginx site
+  file:
+    src: /etc/nginx/sites-available/ctfscore
+    dest: /etc/nginx/sites-enabled/ctfscore
+    owner: root
+    group: root
+    state: link
+
+- name: Start nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: true

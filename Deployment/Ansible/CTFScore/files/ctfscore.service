@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve CTF scoring system
+After=network.target
+
+[Service]
+User=ctfweb
+Group=ctfweb
+WorkingDirectory=/var/lib/ctfweb/
+Environment="PATH=/var/lib/ctfweb/venv/bin"
+ExecStart=/var/lib/ctfweb/venv/bin/gunicorn --workers 4 --bind localhost:8000 ctfscore:"init_app()"
+
+[Install]
+WantedBy=multi-user.target
