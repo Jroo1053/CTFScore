@@ -4,6 +4,7 @@ Reading JSON takes ages with the default module and even with some of the
 'fast' third party modules. So we need to use cysimdjson
 """
 
+from asyncio.log import logger
 from datetime import timedelta
 import logging
 import profile
@@ -16,10 +17,10 @@ import jsonpickle
 
 import orjson
 from timeit import default_timer as timer
+from parso import parse
 import ujson
 
 from Lib.models import IDSAlert
-
 
 
 SUPPORTED_JSON_PARSERS = ["json", "cysimdjson",
@@ -35,9 +36,10 @@ def parse_single_line_json(source, **kwargs):
         with open(source.log_path, "rb") as log_file:
             log_file.seek(source.last_alert_index, 0)
             for line in log_file:
-                if source.alerts_read < source.max_alerts:
+                if source.alerts_read != source.max_alerts:
                     alert, parser = create_alert(source, source_name, line,
                                                  parser=parser)
+                    source.last_alert_index += len(line)
                     if alert:
                         alerts.append(alert)
                         source.last_alert_index += len(line)
@@ -45,16 +47,18 @@ def parse_single_line_json(source, **kwargs):
             log_file.close()
     else:
         with open(source.log_path, "rb") as log_file:
+            parser = "cysimdjson"
             log_file.seek(source.last_alert_index, 0)
             for line in log_file:
-                if source.alerts_read < source.max_alerts:
+                if source.alerts_read != source.max_alerts:
                     alert, parser = create_alert(
-                        source, source_name, line, parser="cysimdjson")
+                        source, source_name, line, parser=parser)
+                    source.last_alert_index += len(line)
                     if alert:
                         alerts.append(alert)
-                        source.last_alert_index += len(line)
                         source.alerts_read += 1
             log_file.close()
+    source.alerts_read = 0
     return alerts, parser
 
 
@@ -65,11 +69,11 @@ def create_alert(source, lower_name, line, parser):
             try:
                 alert = json_parser.parse(line)
             except Exception as e:
+                logger.info("%s failed to parse %s", parser, line)
                 return False, parser
-            if lower_name == "suricata"\
-                    and alert.at_pointer("/event_type") == "alert"\
-                    or lower_name == "teler":
-                if hasattr(source.alert_fields, "severity") and alert.at_pointer(source.alert_fields.severity):
+            if lower_name == "suricata":
+                suricata_alert_type = alert.at_pointer("/event_type")
+                if suricata_alert_type == 'alert' and hasattr(source.alert_fields, "severity") and alert.at_pointer(source.alert_fields.severity):
                     return IDSAlert(
                         dest_ip=alert.at_pointer(
                             source.alert_fields.dest_ip),
@@ -201,5 +205,3 @@ def create_alert(source, lower_name, line, parser):
         return False, parser
     except Exception as e:
         return False, parser
-
-
