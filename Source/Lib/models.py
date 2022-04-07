@@ -224,7 +224,7 @@ class APIConnection():
             )
             sys.exit("Max number of http retries exceeded")
         try:
-            if len(merged_alerts) > 0:
+            if any(merged_alerts):
                 logger.info((
                     "Forwarding the following to the API: %s", merged_alerts))
                 request_json = jsonpickle.encode(merged_alerts, make_refs=False)
@@ -241,6 +241,10 @@ class APIConnection():
                     return False
                 self.current_retries = 0
                 return True
+            if is_verbose:
+                print("No Alerts Found")
+            logger.info("No alerts found")
+            return False
         except HTTPError as http_error:
             self.current_retries += 1
             logger.error((

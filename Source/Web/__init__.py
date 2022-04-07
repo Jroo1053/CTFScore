@@ -46,12 +46,12 @@ parser.set_defaults(is_verbose=False)
 
 try:
     logging.basicConfig(
-        filename="/var/log/ctfweb/web.log",
-        level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+        filename="/var/log/ctfscore/web.log",
+        level=logging.ERROR, format='%(asctime)s %(levelname)s %(message)s')
 except FileNotFoundError:
     logging.basicConfig(
         filename="web.log",
-        level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+        level=logging.ERROR, format='%(asctime)s %(levelname)s %(message)s')
 """
 It appears that flask migrate doesn't work with apps that takes command line
 args, unless we do this.

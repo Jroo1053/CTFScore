@@ -63,7 +63,9 @@
         {% endwith %}
         {% if new_token %}
         <h4 style="margin: 1em;">Access Token</h4>
-        <code id="token_display" style="word-wrap: break-word; max-width: 75vw; background-color: #f4f4f4;">{{new_token}}</code>
+        <div>
+            <code id="token_display" style="word-wrap: break-word; max-width: 75vw; background-color: #f4f4f4;">{{new_token}}</code>
+        </div>
         <button onclick="CopyToClip()" id="copy_button">Copy Key</button>
         <p>
             <em>Note:</em> This token will only be shown once, so make sure it's stored in a secure location.

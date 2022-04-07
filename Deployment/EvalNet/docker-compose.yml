@@ -35,6 +35,8 @@ services:
     networks:
       ctf:
         ipv4_address: 172.200.0.30
+    ports:
+      - 8000:8000
   suricata:
     restart: always
     image: jasonish/suricata:latest
@@ -58,6 +60,8 @@ services:
     networks:
       ctf:
         ipv4_address: "172.200.0.10"
+    ports:
+      - 80:80
     depends_on:
       wazuh:
         condition: service_healthy
@@ -116,11 +120,16 @@ services:
           - wazuh
   ctfusersim:
     restart: always
-    image: ghcr.io/jroo1053/ctfscoreusersim:master
+    image: ghcr.io/jroo1053/ctfscoreusersim:chromepatch
     depends_on:
       - ctfscore
       - wazuh
-    
+    volumes:
+      - ./dockerctf/scripts/:/scripts
+      - ./dockerctf/wordlists:/wordlists
+    entrypoint: /bin/bash usersim.py -u ctfscore -m 1000 -t apachesite -d 10  
+    cap_add:
+      - SYS_ADMIN
   eval-grafana:
     restart:  always
     image: grafana/grafana:main-ubuntu
@@ -128,6 +137,8 @@ services:
     - 3030:3000
     volumes:
       - grafana_storage:/var/lib/grafana
+
+
 
 volumes:
   ossec_api_configuration:

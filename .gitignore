@@ -35,3 +35,9 @@ bench.json
 *.pclprof
 *.disabled
 test.bench
+Deployment/Docker/CTFUsersim/usersim.json
+Deployment/EvalNet/dockerctf/logs/suricata/eve.json
+fil-result
+EvalData
+Deployment/EvalNet/dockerctf/logs/suricata/eve.json
+Source/scorechecker.py

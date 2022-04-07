@@ -4,24 +4,16 @@ Reading JSON takes ages with the default module and even with some of the
 'fast' third party modules. So we need to use cysimdjson
 """
 
-from asyncio.log import logger
-from datetime import timedelta
-import logging
-import profile
 import cysimdjson
 import json
 
 import random
-import flask
 import jsonpickle
 
 import orjson
-from timeit import default_timer as timer
-from parso import parse
 import ujson
 
 from Lib.models import IDSAlert
-
 
 SUPPORTED_JSON_PARSERS = ["json", "cysimdjson",
                           "orjson", "ujson", "jsonpickle"]
@@ -42,7 +34,6 @@ def parse_single_line_json(source, **kwargs):
                     source.last_alert_index += len(line)
                     if alert:
                         alerts.append(alert)
-                        source.last_alert_index += len(line)
                         source.alerts_read += 1
             log_file.close()
     else:

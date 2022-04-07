@@ -17,9 +17,11 @@ from flask import (current_app, Blueprint, render_template, jsonify,
 from werkzeug.urls import url_parse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
+import logging
 
 ui = Blueprint("ui", __name__, url_prefix="/")
 
+logger = logging.getLogger(__name__)
 
 """
 Contingency for changing the name of the system as (ACSS) it's really not great
@@ -154,7 +156,8 @@ def register():
             )
             db.session.add(new_stats)
             db.session.commit()
-        except IntegrityError:
+        except IntegrityError as int_error:
+            logger.error(str(int_error))
             flash("That username is already taken")
             return redirect(url_for("ui.register"))
         try:
@@ -188,7 +191,8 @@ def register():
                             db.session.commit()
             return render_template("register.html", new_token=new_token,
                                    form=reg_form, title=title, user_ip=user_ip)
-        except:
+        except Exception as e:
+            logger.error(str(int_error))
             flash("That username is already taken")
             return render_template("register.html", form=reg_form, title=title,
                                    user_ip=user_ip)

@@ -6,10 +6,11 @@ This file contains all of the routes associated with the api this includes:
 3. Some utility routes
 """
 
+import statistics
 import operator
 import datetime
 import logging
-from statistics import mean
+from numpy import mean
 from sqlalchemy.sql import func
 from sqlalchemy import desc
 import orjson
@@ -172,85 +173,53 @@ def post_create_ids_alerts():
                 IDSAlert.message,
                 IDSAlert.ids_name,
                 IDSAlert.dest_ip,
-                IDSAlert.timestamp
+                IDSAlert.timestamp,
+                IDSAlert.score
             ).order_by(
                 desc(IDSAlert.id)
             ).limit(len(alerts_new)).all()
-            user_alerts = []
+            db.session.bulk_save_objects(
+                [
+                    UserAlert(user_id=alert[0], alert_id=alert[1]) for alert in alerts_with_match
+                ]
+            )
+            db.session.commit()
             """
             Tie each alert to a user(s) if available, save result to UserAlert
             object
-            """
-            for alert in alerts_with_match:
-                user_alerts.append(
-                    UserAlert(
-                        user_id=alert[0],
-                        alert_id=alert[1]
-                    )
-                )
-            db.session.bulk_save_objects(
-                user_alerts
-            )
-            db.session.commit()
+            """        
             stats = []
-            ids_stats = []
             """
             Update user statistics to reflect the changes made in the previous,
             ingest operations.
             """
-            for user in db.session.query(User).with_entities(
-                User.id
-            ).all():
-                ingest_time = datetime.datetime.utcnow()
-                distinct_stats = db.session.query(IDSAlert.message, IDSAlert.timestamp,
-                                                  IDSAlert.score,
-                                                  ).filter(
+
+            latest_alert__scores = db.session.query(IDSAlert.score, UserAlert.user_id
+                                                    ).filter(
                     UserAlert.alert_id == IDSAlert.id
-                ).filter(
-                    UserAlert.user_id == user[0]
-                ).group_by(IDSAlert.timestamp, IDSAlert.message).all()
-                alert_scores = [x[2] for x in distinct_stats]
-                if len(alert_scores) > 0:
+                ).group_by(IDSAlert.timestamp, IDSAlert.message, UserAlert.user_id).all()
+
+
+            alert_users =  set([x[0] for x in alerts_with_match])
+            for user in alert_users:
+                ingest_time = datetime.datetime.utcnow()
+                user_scores = [y[0] for y in latest_alert__scores if y[1] == user]
+                if len(user_scores) > 0:
                     new_stats = UserStats(
-                        user_id=user[0],
-                        alert_count=len(distinct_stats),
-                        alert_average=mean(alert_scores),
-                        alert_min=min(alert_scores),
-                        alert_max=max(alert_scores),
-                        current_score=sum(alert_scores),
+                        user_id=user,
+                        alert_count= len(user_scores),
+                        alert_average= statistics.mean(user_scores),
+                        alert_min= min(user_scores),
+                        alert_max=max(user_scores),
+                        current_score=sum(user_scores),
                         timestamp=ingest_time
                     )
                     stats.append(new_stats)
-                    ids_totals = db.session.query(
-                        IDSAlert, UserAlert
-                    ).filter(
-                        UserAlert.user_id == user[0]
-                    ).filter(
-                        UserAlert.alert_id == IDSAlert.id
-                    ).with_entities(
-                        IDSAlert.ids_name,
-                        func.count(IDSAlert.id),
-                    ).group_by(
-                        IDSAlert.ids_name
-                    ).all()
-                    for total in ids_totals:
-                        ids_stats.append(
-                            IDSStats(
-                                ids_name=total[0],
-                                total_alerts=total[1],
-                                user_id=user[0],
-                                timestamp=ingest_time
-                            )
-                        )
-            db.session.bulk_save_objects(
-                ids_stats
-            )
-        db.session.commit()
         db.session.bulk_save_objects(
             stats
         )
         db.session.commit()
-
+        return Response("", 200)
     except KeyError as key_err:
         logger.warning(
             "Received a malformed event forwading request from %s",
@@ -267,7 +236,9 @@ def post_create_ids_alerts():
             str(val_err)
         )
         return Response("", 500)
-    return Response("", 200)
+    except Exception as e:
+        logger.error(str(e))
+    
 
 
 @ api.route("/events/all/<user_id>", methods=["GET"])
@@ -320,6 +291,7 @@ def get_ids_cats(user_id):
     Return a list of common alert catergoires by IDS
     """
     if not current_user.is_anonymous:
+        per_cat_count = []
         if int(user_id) == current_user.id:
             distinct_stats = db.session.query(IDSAlert.message, IDSAlert.timestamp,
                                               IDSAlert.category, IDSAlert.ids_name
@@ -328,7 +300,7 @@ def get_ids_cats(user_id):
             ).filter(
                 UserAlert.user_id == user_id
             ).group_by(IDSAlert.timestamp, IDSAlert.message).all()
-            per_cat_count = []
+
             for stat in set([x[2:4] for x in distinct_stats]):
                 if len(stat[0]) > 0:
                     per_cat_count.append({
@@ -366,7 +338,10 @@ def get_user_stats(user_id):
                         "alert_max": user_stats.alert_max,
                         "alert_min": user_stats.alert_min
                     })
-                except TypeError:
+                except TypeError as type_fail:
+                    logger.error(
+                        "Failed to generate stats for %s with message: %s",
+                        current_user.id, str(type_fail))
                     return Response("", 405)
     return Response("", 405)
 
@@ -395,7 +370,7 @@ def get_ids_stats(user_id):
                 stat = {
                     "ids_name": ids,
                     "alert_count": len(alert_scores),
-                    "alert_avg": round(mean(alert_scores), 2),
+                    "alert_avg": round(statistics.mean(alert_scores), 2),
                     "alert_max": max(alert_scores),
                     "alert_min": min(alert_scores),
                     "total_score": round(sum(alert_scores), 2)
@@ -577,7 +552,8 @@ def get_alert_stats(alert_id, user_id):
                     desc(UserStats.timestamp)
                 ).first()
                 scores = [x[1] for x in selected_alert_stats]
-                score_percentage = (sum(scores) / current_stats.current_score) * 100
+                score_percentage = (
+                    sum(scores) / current_stats.current_score) * 100
                 return jsonify({
                     "last_occurrence": selected_alert_stats[-1][0],
                     "first_occurrence": selected_alert_stats[0][0],

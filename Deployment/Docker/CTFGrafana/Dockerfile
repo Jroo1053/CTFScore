@@ -22,7 +22,7 @@ RUN apt-get -y update && DEBIAN_FRONTED=noninteractive TZ=Europe/London
 
 RUN apt-get -y install wazuh-agent
 
-RUN apt-get -y install grafana
+RUN apt-get -y install grafana=8.2.5
 
 
 ENTRYPOINT [ "/bin/bash", ""]

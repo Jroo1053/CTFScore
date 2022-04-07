@@ -32,11 +32,11 @@ from Lib.models import APIConnection, DictObj, LogSource
 try:
     logging.basicConfig(
         filename="/var/log/ctfscorelog/logger.log",
-        level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+        level=logging.ERROR, format='%(asctime)s %(levelname)s %(message)s')
 except FileNotFoundError:
     logging.basicConfig(
         filename="logger.log",
-        level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+        level=logging.ERROR, format='%(asctime)s %(levelname)s %(message)s')
 
 
 logging.info("Started log aggregator")
