@@ -1,7 +1,8 @@
 """
 Parsers for each log file format
 Reading JSON takes ages with the default module and even with some of the
-'fast' third party modules. So we need to use cysimdjson
+'fast' third party modules. So we need to use cysimdjson this also simplifies
+setting the JSON fields in the config file.
 """
 
 import cysimdjson
@@ -20,6 +21,20 @@ SUPPORTED_JSON_PARSERS = ["json", "cysimdjson",
 
 
 def parse_single_line_json(source, **kwargs):
+    """
+    _summary_: Parse events from a source that stores alerts as seprate JSON 
+    objects with, each alert taking exactly one line. This appears to be used
+    by most if not all IDS. 
+    Args:
+        source (LogSource): Log Source To Read
+        **is_randjson(bool): A random parser will be used  when this is set. 
+        Usefull when used alongside the bencharking mode (-b)
+    Returns:
+        alerts ([IDSAlert]): A list containing the alerts stored as IDSAlert 
+        objects
+        parser (string): The parser used to perform parse the alerts this
+        time around. This defaults to cysmidjson. 
+    """
     alerts = []
     parser = ""
     source_name = source.ids_name.lower()
@@ -54,6 +69,22 @@ def parse_single_line_json(source, **kwargs):
 
 
 def create_alert(source, lower_name, line, parser):
+    """
+    _summary_: Create an alert from from a given line using, a source, and 
+    parser
+    Args:
+        source (LogSource): Log source that originally produced the alert. This
+        is needed to retrieve the alert fields which, are set in the config file
+        and allow the system to adapat to different IDS logging formats.
+        lower_name (string): The name of the IDS in lowercase used, to match
+        sources and minimise CPU time spent converting cases
+        line: line of JSON to read from
+        parser: JSON parser to translate alert 
+    Returns:
+        alert (IDSAlert): If successful will return the the IDS alert as a python
+        object
+        parser (string): Returns the name of the parser used to produce the alert.
+    """
     try:
         if parser == "cysimdjson":
             json_parser = cysimdjson.JSONParser()
@@ -64,7 +95,9 @@ def create_alert(source, lower_name, line, parser):
                 return False, parser
             if lower_name == "suricata":
                 suricata_alert_type = alert.at_pointer("/event_type")
-                if suricata_alert_type == 'alert' and hasattr(source.alert_fields, "severity") and alert.at_pointer(source.alert_fields.severity):
+                # Suricata has a convenient alert_type field that lets us ignore different entires 
+                if suricata_alert_type == 'alert'\
+                     and hasattr(source.alert_fields,"severity") and alert.at_pointer(source.alert_fields.severity):
                     return IDSAlert(
                         dest_ip=alert.at_pointer(
                             source.alert_fields.dest_ip),
@@ -84,6 +117,7 @@ def create_alert(source, lower_name, line, parser):
             elif lower_name == "wazuh":
                 try:
                     if alert.at_pointer("/data/srcip"):
+                        # If the alert has a source IP it can be treated as normal
                         groups = alert.at_pointer(
                             source.alert_fields.category
                         )
@@ -105,9 +139,9 @@ def create_alert(source, lower_name, line, parser):
                         ), parser
                 except KeyError:
                     """
-                    Only some of the Wazuh alerts include a source ip,
-                    if this line doesn't contain one create an alert but,
-                    set the dest and src to the same values.   
+                    Naturally, IDS alerts that do not invole network activity 
+                    will not contain a source ip. To resolve this issue we,
+                    we set the the dest and source ip the the name of the agent
                     """
                     try:
                         if alert.at_pointer("/agent/name"):
@@ -116,10 +150,8 @@ def create_alert(source, lower_name, line, parser):
                             )
                         catergory = groups
                         return IDSAlert(
-                            dest_ip=alert.at_pointer(
-                                source.alert_fields.dest_ip),
-                            src_ip=alert.at_pointer(
-                                source.alert_fields.src_ip),
+                            dest_ip=alert.at_pointer("/agent/name"),
+                            src_ip=alert.at_pointer("/agent/name"),
                             message=alert.at_pointer(
                                 source.alert_fields.message),
                             timestamp=alert.at_pointer(

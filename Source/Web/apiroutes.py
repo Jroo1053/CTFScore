@@ -1,4 +1,4 @@
-
+# pylint: disable=import-error,pointless-string-statement
 """
 This file contains all of the routes associated with the api this includes:
 1. The route used to ingest all alerts
@@ -10,7 +10,6 @@ import statistics
 import operator
 import datetime
 import logging
-from numpy import mean
 from sqlalchemy.sql import func
 from sqlalchemy import desc
 import orjson
@@ -23,7 +22,7 @@ from Lib.scoring import alien_vault_USM_single
 from Web import db
 from Web.utils import api_is_auth
 
-from .models import (IDSAlert, IDSStats, User, UserAlert, UserAsset, UserNetworkID,
+from .models import (IDSAlert, IDSStats, UserAlert, UserAsset, UserNetworkID,
                      UserStats, LogSource)
 
 
@@ -40,7 +39,8 @@ TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f%z"
 
 """
 Quick fix for preventing IDS alerts from the system itself from being ingested
-. In the future this, should be configured from config.yml.
+. In the future this, should be configured from config.yml. The below messages
+will remain default however.
 """
 FILTERED_MESSAGES = [
     "Docker: Error message", "Interface entered in promiscuous(sniffing) mode."
@@ -59,8 +59,10 @@ def api_get_status():
 @api.route("/verifyauth", methods=["POST"])
 def post_verify_auth():
     """
-    Simple endpoint to allow log aggregators to validate authentication
+    _summary_: Simple endpoint to allow log aggregators to validate authentication
     before forwarding alerts
+    Returns:
+        dict: json success message or 500 on failure
     """
     request_json = orjson.loads(request.get_json())
     try:
@@ -78,17 +80,17 @@ def post_verify_auth():
 @api.route("/events", methods=["POST"])
 def post_create_ids_alerts():
     """
-    Create a new IDS alerts from a list of alerts, designed to work
-    with the log aggregator only but it could work with other stuff
+    _summary_:  Primary API route used to ingest all alerts from attached
+                log aggregators. Alerts are initally proccessed,scored and stored
+                as IDSAlert before being bound to users via UserAlert Objects
+    Returns:
+        dict: json success message or 500 on failure
     """
     full_request = orjson.loads(request.get_json())
-    """
-    Check if the current caller has a valid key an id pair, if not refuse
-    connection
-    """
     source_refresh_needed = True
     log_sources = db.session.query(LogSource).all()
     try:
+        # Check if the caller is authorized if not return
         if not api_is_auth(full_request["key"], full_request["id"]):
             logger.warning(
                 "%s Attempted to forward new alerts but, could not verify",
@@ -104,10 +106,6 @@ def post_create_ids_alerts():
         alerts_new = []
         for source in alerts_raw:
             for alert in source:
-                """
-                Each alert is scored here and the result is tied to the alert
-                itself so that the score can be displayed later.
-                """
                 if source_refresh_needed:
                     log_sources = db.session.query(
                         LogSource).all()
@@ -129,7 +127,6 @@ def post_create_ids_alerts():
                     alert_score, normalised_severity = alien_vault_USM_single(
                         alert,
                         current_app.config['api_options'].registered_assets)
-
                     """
                     Save the alert to the database but, do not tie it to a
                     user at this stage
@@ -187,29 +184,28 @@ def post_create_ids_alerts():
             """
             Tie each alert to a user(s) if available, save result to UserAlert
             object
-            """        
+            """
             stats = []
             """
             Update user statistics to reflect the changes made in the previous,
             ingest operations.
             """
-
             latest_alert__scores = db.session.query(IDSAlert.score, UserAlert.user_id
                                                     ).filter(
-                    UserAlert.alert_id == IDSAlert.id
-                ).group_by(IDSAlert.timestamp, IDSAlert.message, UserAlert.user_id).all()
+                UserAlert.alert_id == IDSAlert.id
+            ).group_by(IDSAlert.timestamp, IDSAlert.message, UserAlert.user_id).all()
 
-
-            alert_users =  set([x[0] for x in alerts_with_match])
+            alert_users = set([x[0] for x in alerts_with_match])
             for user in alert_users:
                 ingest_time = datetime.datetime.utcnow()
-                user_scores = [y[0] for y in latest_alert__scores if y[1] == user]
+                user_scores = [y[0]
+                               for y in latest_alert__scores if y[1] == user]
                 if len(user_scores) > 0:
                     new_stats = UserStats(
                         user_id=user,
-                        alert_count= len(user_scores),
-                        alert_average= statistics.mean(user_scores),
-                        alert_min= min(user_scores),
+                        alert_count=len(user_scores),
+                        alert_average=statistics.mean(user_scores),
+                        alert_min=min(user_scores),
                         alert_max=max(user_scores),
                         current_score=sum(user_scores),
                         timestamp=ingest_time
@@ -219,7 +215,9 @@ def post_create_ids_alerts():
             stats
         )
         db.session.commit()
-        return Response("", 200)
+        return jsonify({
+            "Received": True
+        })
     except KeyError as key_err:
         logger.warning(
             "Received a malformed event forwading request from %s",
@@ -236,17 +234,19 @@ def post_create_ids_alerts():
             str(val_err)
         )
         return Response("", 500)
-    except Exception as e:
-        logger.error(str(e))
-    
+    except Exception as general_expect:
+        logger.error(str(general_expect))
+        return Response("", 500)
 
 
-@ api.route("/events/all/<user_id>", methods=["GET"])
+@api.route("/events/all/<user_id>", methods=["GET"])
 def get_retrive_alerts(user_id):
     """
-    Retrives json represnetations of all the alerts registered with the
-    system, for a specific user.
-    Currently limited to 10,000 alerts to reduce load.
+    _summary_: Retrive a list of all IDS alerts for a certian user.
+    Args:
+        user_id (str): id of user to filter by.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
@@ -265,7 +265,13 @@ def get_retrive_alerts(user_id):
 @api.route("/ids_events/<source>/<user_id>/<count>")
 def get_retrive_alerts_by_source(user_id, source, count):
     """
-    Get IDS alerts by user id, only from a certain source
+    _summary_: Retrive a list of all IDS alerts by user for a specified source.
+    Args:
+        user_id (str): id of user to filter by.
+        source (str) : source IDS (case insensitive).
+        count (str): number of alerts to retrive.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
@@ -288,7 +294,11 @@ def get_retrive_alerts_by_source(user_id, source, count):
 @ api.route("/cats/<user_id>")
 def get_ids_cats(user_id):
     """
-    Return a list of common alert catergoires by IDS
+    _summary_: Retrive a list of the most common IDS alert categories.
+    Args:
+        user_id (str): id of user to filter by.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         per_cat_count = []
@@ -320,8 +330,12 @@ def get_ids_cats(user_id):
 @ api.route("/score/<user_id>", methods=["GET"])
 def get_user_stats(user_id):
     """
-    Route to get the score associated with a specified user id, used to ajax
-    the score on the index
+    _summary_: Retrive the users current score + current stats. Used for
+    main index display.
+    Args:
+        user_id (str): id of user to filter by.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
@@ -349,8 +363,12 @@ def get_user_stats(user_id):
 @ api.route("/ids/stats/<user_id>", methods=["GET"])
 def get_ids_stats(user_id):
     """
-    Returns a summary of basic statisicts associated with a User on a per IDS
-    basis  
+    _summary_: Retrive the current stats for each IDS. Filtered by
+    the specified user.
+    Args:
+        user_id (str): id of user to filter by.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
@@ -383,8 +401,14 @@ def get_ids_stats(user_id):
 @ api.route("/score/time/<user_id>", methods=["GET"])
 def get_score_with_time(user_id):
     """
-    Returns the score of the user at different times with,
-    additional IDS statistics
+    _summary_: Retrives all stats for the specified user over the
+     total duration of the CTF.
+
+    TODO: Fully Implement per IDS stats.
+    Args:
+        user_id (str): id of user to filter by.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
@@ -424,7 +448,13 @@ def get_score_with_time(user_id):
 @ api.route("/score/severities/<user_id>", methods=["GET"])
 def get_alert_severities(user_id):
     """
-    Returns a listing of the most common alert severities
+    _summary_: Retrives list of the most common alert severity levels, filtered,
+    by user and grouped by IDS.
+    TODO: Handle IDS that use inverted scales.
+    Args:
+        user_id (str): id of user to filter by.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
@@ -451,7 +481,12 @@ def get_alert_severities(user_id):
 @ api.route("/score/category/<user_id>", methods=["GET"])
 def get_score_categoires(user_id):
     """
-    Get the most common alert categories on a per user basis.
+    _summary_: Retrives count of alert category filtered by user
+    and grouped by IDS.
+    Args:
+        user_id (str): id of user to filter by.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
@@ -493,7 +528,12 @@ def get_score_categoires(user_id):
 @ api.route("/score/message/<user_id>", methods=["GET"])
 def get_alert_messages(user_id):
     """
-    Returns the most common alert messages for the current user
+    _summary_: Retrives the five most common IDS alert messages
+    and impact on score. Filtered by user like all API calls.
+    Args:
+        user_id (str): id of user to filter by.
+    Returns:
+        dict: 'jsonified' dict of stats.
     """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
@@ -521,6 +561,16 @@ def get_alert_messages(user_id):
 
 @api.route("/alert/<alert_id>/stats/<user_id>")
 def get_alert_stats(alert_id, user_id):
+    """
+    _summary_: Gets statistics on an individual alert including; total ourcances
+    and impact on score. Filtered by user like all API calls.
+    Args:
+        alert_id (str): id of the IDSAlert Object to read.
+        user_id (str): id of user to filter by.
+
+    Returns:
+        dict: 'jsonified' dict of stats.
+    """
     if not current_user.is_anonymous:
         if int(user_id) == current_user.id:
             selected_alert = db.session.query(

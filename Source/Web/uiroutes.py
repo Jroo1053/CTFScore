@@ -1,6 +1,8 @@
 # pylint: disable=import-error,pointless-string-statement
 """
-This file contains all of the routes used by the UI
+This file contains all of the routes used by the UI,
+most of the UI logic is done client-side via AJAX and the API as such, most
+of these routes are fairly short. 
 """
 import secrets
 from Web import db
@@ -12,11 +14,10 @@ from flask_login import current_user, logout_user
 from flask_login.utils import login_required, login_user
 
 from Web import db
-from flask import (current_app, Blueprint, render_template, jsonify,
+from flask import (current_app, Blueprint, render_template,
                    request, url_for, redirect, flash)
 from werkzeug.urls import url_parse
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql import func
 import logging
 
 ui = Blueprint("ui", __name__, url_prefix="/")
@@ -39,6 +40,7 @@ def index():
     alerts and scoring
     """
     title = "Home |" + BASE_DOC_TITLE
+    #TODO: Load IDS dynamically.
     triggered_ids = ["Wazuh", "Suricata"]
 
     return render_template("index.html", total_score=0, total_alerts=0,
@@ -50,7 +52,7 @@ def index():
 @login_required
 def alerts():
     """
-    Route for the alerts history page, that displays a summary of all of the
+    Route for the alerts history page, this displays a summary of all of the
     recorded IDS alerts and provides a jumping off point for the scoring
     breakdown
     """
@@ -63,7 +65,7 @@ def alerts():
 def configure():
     """
     Route for the account configuration page, used to update the assets,
-    currently not, reachable from the system itself
+    currently not, reachable from the system itself, as it's super broken
     """
     title = "Configure |" + BASE_DOC_TITLE
     configure_form = ConfigureForm()
@@ -101,7 +103,7 @@ def alert(alert_id):
     """
     Route for the alert/scoring breakdown, this page is used to present
     the scoring algorithm in detail and provide a breakdown for every score
-    on a per alert basis
+    on a per alert basis.
     """
     title = "Alert Breakdown |" + BASE_DOC_TITLE
     breakdown_alert = IDSAlert.query.filter_by(id=alert_id).first()
@@ -130,7 +132,7 @@ def register():
     """
     Route used for making initial contact with unknown nodes and registering
     users with the password-less authentication system. Users are identified
-    by an randomly generated access token and a username
+    by an randomly generated access token and a username.
     """
     title = "Register |" + BASE_DOC_TITLE
     user_ip = request.remote_addr
