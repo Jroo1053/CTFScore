@@ -26,7 +26,7 @@ Each component is designed for containerisation and as a result, it is recommend
 
 ### Ansible
 
-[Ansible plays]() are also available to perform the installation of the demo CTF, and each component in non-containerised form.
+[Ansible plays](https://github.com/Jroo1053/CTFScore/tree/master/Deployment/Ansible/Demo) are also available to perform the installation of a demo CTF. More will be added soon.
 
 ### Manual Deployment
 
