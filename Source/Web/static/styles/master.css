@@ -11,8 +11,13 @@ body{
     ;
     display:  grid;
     height: 100vw;
+    width: 100vw;
     background-color: white;
     color: black;
+}
+html,body{
+    max-width: 100%;
+    overflow-x: hidden;
 }
 /* Nav Styling */
 
@@ -22,6 +27,10 @@ header{
 header h1{
     margin: .5em;
 }
+nav ul{
+    font-size: 0;
+    margin: 1em;
+}
 header a{
     text-decoration: none;
     color: white;
@@ -30,6 +39,8 @@ nav ul li{
     display: inline-block;
     padding: .5em;
     position: relative;
+    border-right: 1px solid white;
+    font-size: medium;
 }
 nav ul li:hover{
     background-color: #DA0037;
@@ -50,6 +61,25 @@ nav ul{
 
 /* Main Styling */
 
+@media screen and (min-width: 980px) /* Desktop */ {
+    .data_card{
+        background-color: white;
+        margin: 1em;
+        border: 1px #DA0037 solid;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        width: 50%;
+    }
+    }
+    @media screen and (max-width: 980px) /* Mobile */ {
+        .data_card{
+            background-color: white;
+            margin: 1em;
+            border: 1px #DA0037 solid;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            width: 90%;
+        }
+        }
+    
 .flex_container{
     display: flex;
     flex-wrap: wrap;
@@ -58,13 +88,6 @@ nav ul{
     flex-direction: row;
     gap: 1em;
 }
-
-.data_card{
-    background-color: white;
-    margin: 0px;
-    border: 1px #DA0037 solid;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-}
 .data_card p{
     margin: 1em;
 }
@@ -72,8 +95,19 @@ nav ul{
     list-style: none;
     padding: 0px;
 }
+#score_display {
+    background-color: white;
+    color: black;
+    border: 0px;
+}
 .data_card h2, .data_card h3{
     text-align: center;
+    background-color: #313131;
+    color: white;
+    margin: 0px;
+    padding: 1em;
+    border-bottom: 1px solid #da0037;
+
 }
 .data_card span{
     margin-left: 50%;
@@ -88,6 +122,7 @@ button{
     padding: 0.5em;
     color: white;
     border: 0px;
+    margin: 0.5em;
 }
 button:hover{
     background-color: #313131;

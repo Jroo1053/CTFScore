@@ -22,13 +22,10 @@
 
 
 from argparse import ArgumentParser
-from asyncio.log import logger
 import logging
 import sys
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from prometheus_flask_exporter import PrometheusMetrics
-from pymysql import IntegrityError
 from Lib.utils import get_config_opts
 from Lib.models import DictObj
 from flask_migrate import Migrate
@@ -68,7 +65,6 @@ db = SQLAlchemy(session_options={
 
 migrate = Migrate(db)
 login = LoginManager()
-metrics = PrometheusMetrics.for_app_factory()
 
 
 DEFAULT_CONFIG_PATH = "/etc/ctfscore/config.yml"
@@ -91,7 +87,6 @@ def create_app():
     migrate.init_app(app, db, render_as_batch=True)
     login.init_app(app)
     login.login_view = "ui.login"
-    metrics.init_app(app)
     register_error_handlers(app)
     with app.app_context():
         from . import apiroutes
@@ -99,7 +94,6 @@ def create_app():
         db.create_all()
         app.register_blueprint(apiroutes.api)
         app.register_blueprint(uiroutes.ui)
-        metrics.register_default()
     return app
 
 

@@ -3,7 +3,7 @@
 <main class="flex_container">
     <figure class="data_card" style="width: 45%;">
         <h2>Welcome, {{current_user.username}}</h2>
-        <h2>
+        <h2 style="background-color: white; color: black; border: 0px;">
             Current Score:
         </h2>
         <h3 id="score_display">
@@ -16,7 +16,7 @@
         <h2>
             Alert Stats
         </h2>
-        <ul style="margin:0.5em;">
+        <ul style="margin:1em;">
             <li id="total_alerts_display">Number of Alerts: 0</li>
             <li id="alert_max_display">Highest Alert Score: 0</li>
             <li id="average_alert_display">Average Alert Score: 0</li>
@@ -27,7 +27,7 @@
         </a>
     </figure>
     {% for ids in active_ids %}
-    <figure class="data_card" style="width: 90%;">
+    <figure class="data_card">
         <h2>Most Recent Alerts: {{ids}} </h2>
         <p>
             Click on any alert in this table to view a breakdown of 
@@ -101,7 +101,7 @@
 
     </script>
     {% endfor %}
-    <figure class="data_card" style="width: 90%;">
+    <figure class="data_card">
         <h2>
             IDS Stats
         </h2>
@@ -160,7 +160,7 @@
                 });
         </script>
     </figure>
-    <figure class="data_card" style="width: 90%;">
+    <figure class="data_card">
         <h2>
             Alerts By Category
         </h2>
@@ -232,7 +232,7 @@
         // get new data every 3 seconds
         setInterval(getData, 3000);
     </script>
-    <figure class="data_card" style="width: 90%;">
+    <figure class="data_card">
         <h2>
             Alerts By Severity
         </h2>
@@ -303,7 +303,7 @@
         // get new data every 3 seconds
         setInterval(getData, 3000);
     </script>
-    <figure class="data_card" style="width: 90%;">
+    <figure class="data_card">
         <h2>
             5 Most Common Alerts
         </h2>
@@ -383,7 +383,7 @@
         // get new data every 3 seconds
         setInterval(getData, 3000);
     </script>
-    <figure class="data_card" style="width: 90%;">
+    <figure class="data_card">
         <h2>
             Score Progression
         </h2>

@@ -41,3 +41,7 @@ fil-result
 EvalData
 Deployment/EvalNet/dockerctf/logs/suricata/eve.json
 Source/scorechecker.py
+utlis.html
+logger.html
+model_report.html
+Source/auth_report.html

@@ -1,4 +1,4 @@
-from Web import init_app, metrics
+from Web import init_app
 import flask_monitoringdashboard as dash
 from flask_cors import CORS
 import logging

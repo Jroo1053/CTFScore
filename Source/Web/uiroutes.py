@@ -132,7 +132,9 @@ def register():
     """
     Route used for making initial contact with unknown nodes and registering
     users with the password-less authentication system. Users are identified
-    by an randomly generated access token and a username.
+    by an randomly generated access token and a username. This is done to
+    prevent users from entering real passwords into the system given, that they
+    are likely to be lost during a single node CTF.
     """
     title = "Register |" + BASE_DOC_TITLE
     user_ip = request.remote_addr

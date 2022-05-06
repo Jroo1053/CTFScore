@@ -6,8 +6,6 @@ import sys
 import requests
 import jsonpickle
 import logging
-import json
-import cysimdjson
 from requests.models import HTTPError
 
 logger = logging.getLogger(__name__)
@@ -94,7 +92,7 @@ class AlertFields():
         self.timestamp = timestamp
         self.category = category
         """
-        not all IDS give a severity to alerts so, this is need to account for
+        not all IDS give a severity to alerts so, this is needed to account for
         that.
         """
         if severity:
@@ -184,8 +182,12 @@ class APIConnection():
 
     def load_api_creds(self, api_id_file, api_key_file):
         """
-        Reads from the credential files specified in the config file and loads
-        the value of the key and id. Only, if they pass basic validation
+        _summary_: Grab the API key and ID from the specified paths
+        Args:
+            api_id_file (string): Path to the api id file
+            api_key_file (string): Path to the api key file
+        Returns:
+            id,key (string): If successful return the values of the API key pair.
         """
         with open(api_id_file, "r", encoding="utf-8") as id_file:
             api_id = id_file.readline()
@@ -198,11 +200,14 @@ class APIConnection():
         return api_id, api_key
 
     def forward_IDS_alerts(self, alerts, **is_verbose):
+        """"
+        _summary_: Forward a list of IDSAlert objects to the API 
+        Args:
+            alerts ([IDSAlert]) : List of IDSAlert(s) to forward
+            **is_verbose (bool) : if set enable verbose mode.
+        Returns:
+            id,key (string): If successful return the values of the API key pair.
         """
-        Forwards the specified IDS alerts to the api via the forwarding
-        endpoint as specified by the config.
-        """
-
         """
         Concatianate the alert sources together to reduce faffage on the 
         server side
@@ -215,7 +220,7 @@ class APIConnection():
         if self.max_retries > 0 and self.current_retries == self.max_retries:
             """
             Stop execution if x number of requests have occurred since last
-            successfull request. Usefull for killing containerised deployments
+            successful request. Usefull for killing containerised deployments
             of the log aggergator
             """
             logger.error(
@@ -224,21 +229,26 @@ class APIConnection():
             )
             sys.exit("Max number of http retries exceeded")
         try:
+            # Only attempt connection if alerts are present.
             if any(merged_alerts):
                 logger.info((
                     "Forwarding the following to the API: %s", merged_alerts))
                 request_json = jsonpickle.encode(merged_alerts, make_refs=False)
-                final_json = APIRequest(request_json, self.key, self.id)
+                final_json = jsonpickle.encode(APIRequest(request_json, self.key, self.id))
+                
                 if is_verbose:
-                    print(jsonpickle.encode(final_json, indent=1))
+                    print(final_json)
                 api_request = requests.post(
                     url=target_url,
-                    json=jsonpickle.encode(final_json), headers=headers, verify=False)
+                    json=final_json, headers=headers, verify=False)
+                
                 if is_verbose:
                     print(api_request.status_code)
+                
                 if not api_request.status_code == 200:
                     self.current_retries += 1
                     return False
+                # Reset the retries counter if the last request went through
                 self.current_retries = 0
                 return True
             if is_verbose:

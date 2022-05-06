@@ -1,5 +1,4 @@
 from flask_login.mixins import UserMixin
-from sqlalchemy.orm import backref
 from Web import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,7 +7,7 @@ from dataclasses import dataclass
 @dataclass
 class IDSAlert(db.Model):
     """
-    Wrapper class for the DB to represent IDS alerts
+    Class to represent IDS alerts in the DB
     """
     id: int
     dest_ip: str
@@ -47,7 +46,7 @@ class IDSAlert(db.Model):
 
 class User(UserMixin, db.Model):
     """
-    Wrapper class for the DB to represent users and user accounts
+    Class to represent user accounts in the database
     """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -64,11 +63,18 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.access_token, unverified_token)
 
 class UserAlert(db.Model):
+    """
+    Instead of tying IDSAlert directly to users we, tie alerts
+    to users via this class. This allows us to tie an alerts to N users 
+    """
     id = db.Column(db.Integer,primary_key=True)
     user_id = db.Column(db.Integer,db.ForeignKey("user.id"))
     alert_id = db.Column(db.Integer,db.ForeignKey("ids_alert.id"))
 
 class TargetAsset(db.Model):
+    """
+    Used to represent the vulnerable nodes in the CTF.
+    """
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), unique=True)
@@ -78,12 +84,22 @@ class TargetAsset(db.Model):
 
 
 class TargetNetworkID(db.Model):
+    """
+    Used to represent the network IDs asscoated with a target node.
+    can be hostname or IP but, should match the ID used with attached IDS. 
+    """
     id = db.Column(db.Integer, primary_key=True)
     id_string = db.Column(db.String(128))
     node_id = db.Column(db.Integer, db.ForeignKey("target_asset.id"))
 
 
 class UserAsset(db.Model):
+    """
+    Represents an asset under the control of the CTF partipcent. Needed to 
+    tie individual IDS alerts to specific users. Created during registration,
+    but can also be set ahead of time via the mandatory assets field which, is
+    required to ingest HIDS alerts that do not contain a source ip. 
+    """
     id = db.Column(db.Integer, primary_key=True)
     network_identifiers = db.relationship("UserNetworkID")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -103,7 +119,8 @@ class LogSource(db.Model):
 
 class UserStats(db.Model):
     """
-    Representation of the stats currently tied to each user account
+    Representation of the stats tied to each user. Multiple UserStats objects
+    can be tied to a user to allow stats to be tracked over time.
     """
     id = db.Column(db.Integer,primary_key=True)
     user_id = db.Column(db.Integer,db.ForeignKey("user.id"))

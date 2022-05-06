@@ -4,17 +4,17 @@
 <main class="flex_container" style="justify-content: flex-start; align-items: baseline;">
 
     <figure class="data_card" style="width: 100%; margin: 1em;">
-        <h3> Scoring Breakdown For Alert:
+        <h3>Breakdown For Alert:
             {{alert.id}} ({{alert.message}})</h3>
     </figure>
     <figure class="data_card" style="width: 45%; margin: 1em;">
         <h3>Alert Details</h3>
-        <ul style="list-style:inside;  margin-left: 1em;">
+        <ul style=" margin-left: 1em;">
             <li>
-                Alert ID: {{alert.id}}
+                ID: {{alert.id}}
             </li>
             <li>
-                Alert Timestamp: {{alert.timestamp}}
+                Timestamp: {{alert.timestamp}}
             </li>
             <li>
                 Source IP: {{alert.src_ip}}
@@ -23,24 +23,24 @@
                 Affected Asset: {{alert.dest_ip}}
             </li>
             <li>
-                Alert Description: {{alert.message}}
+                Description: {{alert.message}}
             </li>
             <li>
-                 Alert Category: {{alert.category}}
+                Category: {{alert.category}}
             </li>
             {% if alert.severity %}
                 <li> 
-                    Alert Severity: {{alert.severity}}
+                    Severity: {{alert.severity}}
                 </li>
                 <li>
-                    Alert Score: {{alert.score}}
+                    Score: {{alert.score}}
                 </li>
             {% endif %}
         </ul>
     </figure>
     <figure class="data_card" style="width: 45%; margin: 1em;">
         <h3>Target Details</h3>
-        <ul style="list-style:inside;  margin-left: 1em;">
+        <ul style="margin-left: 1em;">
             <li>
                 Asset Name: {{asset.name}}
             </li>
@@ -51,7 +51,7 @@
     </figure>
     <figure class="data_card" style="width: 45%; margin: 1em;">
         <h3>IDS Details</h3>
-        <ul style="list-style:inside;  margin-left: 1em;">
+        <ul style="  margin-left: 1em;">
             <li>
                 IDS Name: {{source.ids_name}}
             </li>
@@ -68,17 +68,17 @@
                 IDS Severity Range: 1-3*
             </li>
             <p>
-                *Note that, Suricata inverts the normal severity scale so an alert with a severity of 1 is, the most critical whereas, an alert with severity of
-                3 is not important. The scoring system does account for this.
+                *Note, Suricata inverts the normal severity scale so an alert with a severity of 1 is, the most critical whereas, an alert with severity of
+                3 is the least. The scoring system does account for this.
             </p>
             {% endif %}
         </ul>
     </figure>
     <figure class="data_card" style="width: 45%;">
-        <h2>
+        <h3>
             Alert Stats
-        </h2>
-        <ul style="margin: 0.5em">
+        </h3>
+        <ul style="margin: 0.5em;">
             <li id="first_occurrence"> First Occurrence</li>
             <li id="last_occurrence"> Last Occurrence</li>
             <li id="total_occurrences"> Total Occurrences:</li>
@@ -95,19 +95,13 @@
         </code>
         <p>
             Where:
-            <ul style="list-style:inside; margin: 1em;">
-                <li>
-                AssetValue is the relative value of the asset that was attacked, rated from 0-5. In this case, the {{asset.name}} has a value of {{asset.value}}
-                </li>
-                <li>
+                <p>
+                AssetValue is the relative value of the asset that was attacked, rated from 0-5. In this case, the {{asset.name}} has a value of {{asset.value}}.
                 Priority measures the severity of the attack and the urgency of investigation, rated from 0-5. 
-                Note that, severity levels from different IDS are normalised to fit this scale. The normalised severity of this alert is {{alert.normalised_severity}}
-                </li>
-                <li>
+                Note that, severity levels from different IDS are normalised to fit this scale. The normalised severity of this alert is {{alert.normalised_severity}}.
                 Reliability defines the likelihood of a false positive, rated from 0-10. The IDS that triggered this alert, 
-                {{source.ids_name}} has a reliability weighting of {{source.reliability}}
-                </li>
-            </ul>
+                {{source.ids_name}} has a reliability weighting of {{source.reliability}}.
+                </p>
         </p>
         <p>
             This translates to the following in the case of alert {{alert.id}}:

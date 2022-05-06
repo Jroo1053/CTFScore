@@ -1,7 +1,7 @@
 from flask import render_template
 
 
-BASE_DOC_TITLE = " Advanced CTF Scoring System"
+BASE_DOC_TITLE = " CTFScore "
 
 
 def register_error_handlers(app):
