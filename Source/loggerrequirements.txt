@@ -66,7 +66,7 @@ tqdm==4.62.3
 trio==0.19.0
 trio-websocket==0.9.2
 tzlocal==2.0.0
-ujson==4.2.0
+ujson==5.4.0
 urllib3==1.26.7
 webdrivermanager==0.10.0
 Werkzeug==2.0.2
