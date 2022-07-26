@@ -6,7 +6,7 @@
 
 CTFScore or the "Advanced CTF Scoring System" adds a new dimension to CTFs by scoring participants on the forensic footprint of their approaches. The system integrates with a [variety](#supported-ids) of open-source IDS, providing real-time feedback to users based on the detectability of their attacks. Users have access to a list of IDS alerts recorded during a CTF and a breakdown of their recorded score. Along with a variety of statistics all of which are updated in real-time. This allows CTF developers to introduce discussions of defensive methodologies to offensive CTFs.
 
-A demo CTF that integrates the system is available on [TryHackMe.com](https://tryhackme.com/jr/idsevasion). This room walks users through a complete cyber-attack from initial recon to the final post-exploitation tasks and discusses the footprints of; web scanners, exploit kits, privilege escalation tools and persistence mechanisms. A survery was attached to this room and a summary of the results is available [here](https://ctfresources.s3.eu-west-2.amazonaws.com/CTFScore+Demo+CTF+Survey+Results.pdf).
+A demo CTF that integrates the system is available on [TryHackMe.com](https://tryhackme.com/jr/idsevasion). This room walks users through a complete cyber-attack from initial recon to the final post-exploitation tasks and discusses the footprints of; web scanners, exploit kits, privilege escalation tools and persistence mechanisms. A survey was attached to this room and a summary of the results is available [here](https://ctfresources.s3.eu-west-2.amazonaws.com/CTFScore+Demo+CTF+Survey+Results.pdf).
 
 ## Architectural Overview
 
